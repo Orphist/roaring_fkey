@@ -1,0 +1,20 @@
+/.idea/*
+/.bundle
+/tmp/*
+
+.rvmrc
+
+# Mac finder artifacts
+.DS_Store
+
+# RubyMine project files
+.idea/*
+
+# VS code project files
+.vscode
+
+# Textmate project files
+/*.tmproj
+
+# vim artifacts
+**.swp
