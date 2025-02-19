@@ -1,0 +1,11 @@
+Description:
+  Generates the necessary files to get you up and running with roaring_fkey gem
+
+Examples:
+  rails generate roaring_fkey:install
+
+    This will generate the core migration file with functions defined.
+
+  rails generate roaring_fkey:install
+
+    This will generate schema.rb compatible migration with `create_function` definitions and separate SQL files.

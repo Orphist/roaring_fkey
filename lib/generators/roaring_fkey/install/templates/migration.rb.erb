@@ -1,0 +1,27 @@
+class <%= @migration_class_name %> < ActiveRecord::Migration[<%= ActiveRecord::Migration.current_version %>]
+  def up
+<%- if update? || obsolete_version? -%>
+    execute <<~SQL
+  <%- function_definitions.each do |f| -%>
+      DROP FUNCTION IF EXISTS <%= f.name %>(<%= f.signature %>) CASCADE;
+  <%- end -%>
+    SQL
+<%- end -%>
+
+<%- function_definitions.each do |f| -%>
+    execute <<~SQL
+<%= inject_sql("#{f.name}.sql", indent: 6) %>
+    SQL
+<%- end -%>
+  end
+
+  def down
+<%- unless update? -%>
+    execute <<~SQL
+  <%- function_definitions.each do |f| -%>
+      DROP FUNCTION IF EXISTS <%= f.name %>(<%= f.signature %>) CASCADE;
+  <%- end -%>
+    SQL
+<%- end -%>
+  end
+end

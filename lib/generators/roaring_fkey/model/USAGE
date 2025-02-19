@@ -1,0 +1,8 @@
+Description:
+  Generates the necessary migration to enable logging for model
+  
+Examples:
+  rails generate roaring_fkey:model UserGroup user:references
+
+    This will generate the migration to add reference/fkey column user_groups.user_ids.
+    This will also add `belongs_to_many :users...` to UserGroup model.

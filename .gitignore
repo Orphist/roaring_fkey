@@ -1,20 +1,6 @@
-/.idea/*
-/.bundle
-/tmp/*
-
-.rvmrc
-
-# Mac finder artifacts
+/.bundle/
+/.idea/
 .DS_Store
-
-# RubyMine project files
-.idea/*
-
-# VS code project files
-.vscode
-
-# Textmate project files
-/*.tmproj
-
-# vim artifacts
-**.swp
+/tmp/
+/log/
+.env

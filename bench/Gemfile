@@ -1,0 +1,17 @@
+# frozen_string_literal: true
+
+source "https://rubygems.org"
+
+gem "rails", "~> 6.1"
+gem "pg", "~> 1.0"
+
+gem "dotenv"
+gem "faker"
+
+# gem 'roaring_fkey', git: 'git@bitbucket.org:bitgit/roaring_fkey.git', branch: :master
+gem 'roaring_fkey', path: '../'#, branch: :master
+gem 'activerecord-import'
+
+gem "memory_profiler"
+gem "benchmark-ips"
+gem "rainbow"
