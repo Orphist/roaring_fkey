@@ -226,7 +226,7 @@ module ActiveRecord
     module PostgreSQL
       module ColumnMethods
         def roaringbitmap(name, options = {})
-          column(name, :roaringbitmap, **{ default: '\x3a3000000100000000000000100000000000' }.merge(options))
+          column(name, :roaringbitmap, **{ default: "'{}'::roaringbitmap" }.merge(options))
         end
       end
     end
