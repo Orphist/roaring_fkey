@@ -11,10 +11,11 @@
 # It's strongly recommended that you check this file into your version control system.
 
 version = 1
+# binding.pry
 
 return if ActiveRecord::Migrator.current_version == version
 ActiveRecord::Schema.define(version: version) do
-  self.verbose = false
+  self.verbose = true
 
   enable_extension "plpgsql"
   enable_extension "roaringbitmap"
@@ -28,11 +29,11 @@ ActiveRecord::Schema.define(version: version) do
 
   create_table "tags", force: :cascade do |t|
     t.string "name"
-    t.roaringbitmap "comment_ids"
+    t.roaringbitmap64 "comment_ids"
   end
 
   create_table "videos", force: :cascade do |t|
-    t.roaringbitmap   "tag_ids"
+    t.roaringbitmap64 "tag_ids"
     t.string   "title"
     t.string   "url"
     t.integer   "type"

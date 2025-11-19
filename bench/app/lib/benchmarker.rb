@@ -2,7 +2,6 @@
 
 require 'dotenv'
 require 'tracer'
-require 'activerecord-import'
 require "active_support/number_helper"
 require "csv"
 

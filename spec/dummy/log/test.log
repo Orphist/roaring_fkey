@@ -57399,3 +57399,567 @@ end; $pl$;
   [1m[35m (0.3ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
   [1m[36mActiveRecord::InternalMetadata Load (0.4ms)[0m  [1m[34mSELECT "ar_internal_metadata".* FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = 'environment' LIMIT 1[0m
   [1m[35m (0.2ms)[0m  [1m[34mSELECT pg_advisory_unlock(2889357478352211615)[0m
+  [1m[35m (0.6ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[35m (0.4ms)[0m  [1m[34mSELECT "ar_internal_metadata"."value" FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = 'environment'[0m
+  [1m[35m (0.3ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[35m (0.3ms)[0m  [1m[34mSELECT "ar_internal_metadata"."value" FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = 'environment'[0m
+  [1m[35m (0.2ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[35m (0.2ms)[0m  [1m[34mSELECT "ar_internal_metadata"."value" FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = 'environment'[0m
+  [1m[35m (16.0ms)[0m  [1m[35mDROP DATABASE IF EXISTS "pgroaringbitmap_test"[0m
+  [1m[35m (27.1ms)[0m  [1m[35mCREATE DATABASE "pgroaringbitmap_test" ENCODING = 'unicode'[0m
+  [1m[35m (1.8ms)[0m  [1m[35mCREATE TABLE "ar_internal_metadata" ("key" character varying NOT NULL PRIMARY KEY, "value" character varying, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.4ms)[0m  [1m[34mSELECT "ar_internal_metadata".* FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = 'environment' LIMIT 1[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN[0m
+  [1m[36mActiveRecord::InternalMetadata Create (0.4ms)[0m  [1m[32mINSERT INTO "ar_internal_metadata" ("key", "value", "created_at", "updated_at") VALUES ('environment', 'test', '2025-11-19 06:30:46.967302', '2025-11-19 06:30:46.967302') RETURNING "key"[0m
+  [1m[36mTRANSACTION (0.4ms)[0m  [1m[35mCOMMIT[0m
+  [1m[35m (0.9ms)[0m  [1m[34m              SELECT roaring_fkey_version();
+[0m
+  [1m[35m (0.4ms)[0m  [1m[34m              SELECT roaring_fkey_version();
+[0m
+  [1m[35m (0.4ms)[0m  [1m[34m              SELECT roaring_fkey_version();
+[0m
+  [1m[35m (2.0ms)[0m  [1m[35mCREATE TABLE "schema_migrations" ("version" character varying NOT NULL PRIMARY KEY)[0m
+  [1m[35m (0.3ms)[0m  [1m[34mSELECT pg_try_advisory_lock(4880462094319175175)[0m
+  [1m[35m (0.5ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+Migrating to EnableRoaringbitmap (20251119063048)
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN[0m
+  [1m[35mSQL (8.0ms)[0m  [1m[35mCREATE EXTENSION IF NOT EXISTS "roaringbitmap"[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.4ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20251119063048') RETURNING "version"[0m
+  [1m[36mTRANSACTION (0.9ms)[0m  [1m[35mCOMMIT[0m
+Migrating to RoaringFkeyInstall (20251119063049)
+  [1m[36mTRANSACTION (0.3ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (0.5ms)[0m  [1m[35mDROP FUNCTION IF EXISTS roaring_fkey_bigint_contains_in_bitmap(bigint, roaringbitmap) CASCADE;
+DROP FUNCTION IF EXISTS roaring_fkey_bigint_contains_in_bitmap64(bigint, roaringbitmap64) CASCADE;
+DROP FUNCTION IF EXISTS roaring_fkey_bigint_contains_int_array(bigint, integer[]) CASCADE;
+DROP FUNCTION IF EXISTS roaring_fkey_bigint_eq_int_array(bigint, integer[]) CASCADE;
+DROP FUNCTION IF EXISTS roaring_fkey_bitmap_contains_bigint(roaringbitmap, bigint) CASCADE;
+DROP FUNCTION IF EXISTS roaring_fkey_bitmap_contains_bigint64(roaringbitmap64, bigint) CASCADE;
+DROP FUNCTION IF EXISTS roaring_fkey_bitmap_contains_int(roaringbitmap, integer) CASCADE;
+DROP FUNCTION IF EXISTS roaring_fkey_bitmap_overlaps_array_bigint(roaringbitmap64, bigint[]) CASCADE;
+DROP FUNCTION IF EXISTS roaring_fkey_bitmap_overlaps_array_int(roaringbitmap, integer[]) CASCADE;
+DROP FUNCTION IF EXISTS roaring_fkey_int_array_contains_bigint(integer[], bigint) CASCADE;
+DROP FUNCTION IF EXISTS roaring_fkey_int_contains_in_bitmap(integer, roaringbitmap) CASCADE;
+DROP FUNCTION IF EXISTS roaring_fkey_version() CASCADE;
+DROP FUNCTION IF EXISTS roaringbitmap64_count(integer, roaringbitmap64) CASCADE;
+DROP FUNCTION IF EXISTS roaringbitmap64_max(integer, roaringbitmap64) CASCADE;
+DROP FUNCTION IF EXISTS roaringbitmap64_min(integer, roaringbitmap64) CASCADE;
+DROP FUNCTION IF EXISTS roaringbitmap_count(integer, roaringbitmap) CASCADE;
+DROP FUNCTION IF EXISTS roaringbitmap_max(integer, roaringbitmap) CASCADE;
+DROP FUNCTION IF EXISTS roaringbitmap_min(integer, roaringbitmap) CASCADE;
+DROP FUNCTION IF EXISTS roaring_fkey_bigint_contains_in_bitmap64(bigint, roaringbitmap64) CASCADE;
+DROP FUNCTION IF EXISTS roaring_fkey_bitmap_contains_bigint64(roaringbitmap64, bigint) CASCADE;
+DROP FUNCTION IF EXISTS roaringbitmap64_count(integer, roaringbitmap64) CASCADE;
+DROP FUNCTION IF EXISTS roaringbitmap64_max(integer, roaringbitmap64) CASCADE;
+DROP FUNCTION IF EXISTS roaringbitmap64_min(integer, roaringbitmap64) CASCADE;
+[0m
+  [1m[35m (2.7ms)[0m  [1m[35mdo $pl$
+begin
+
+  CREATE FUNCTION roaring_fkey_bigint_contains_in_bitmap(bigint, roaringbitmap)
+  returns boolean language sql immutable as $$
+    SELECT $2 @> $1::int
+  $$;
+
+  CREATE OPERATOR == (leftarg = bigint, rightarg = roaringbitmap,
+      procedure = roaring_fkey_bigint_contains_in_bitmap,
+      commutator = =);
+
+exception
+    when duplicate_function then
+         null;
+    when others then
+      raise notice E'Got exception: func roaring_fkey_bigint_contains_in_bitmap';
+end; $pl$;
+[0m
+  [1m[35m (0.6ms)[0m  [1m[35mdo $pl$
+begin
+
+  CREATE FUNCTION roaring_fkey_bigint_contains_in_bitmap64(bigint, roaringbitmap64)
+  returns boolean language sql immutable as $$
+    SELECT $2 @> $1
+  $$;
+
+  CREATE OPERATOR == (leftarg = bigint, rightarg = roaringbitmap64,
+      procedure = roaring_fkey_bigint_contains_in_bitmap64,
+      commutator = =);
+
+exception
+    when duplicate_function then
+         null;
+    when others then
+      raise notice E'Got exception: func roaring_fkey_bigint_contains_in_bitmap64';
+
+end; $pl$;
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mdo $pl$
+begin
+
+  CREATE FUNCTION roaring_fkey_bigint_contains_int_array(bigint, integer[])
+  returns boolean language sql immutable as $$
+    SELECT $1::int = ANY($2)
+  $$;
+
+  CREATE OPERATOR = (leftarg = bigint, rightarg = integer[],
+      procedure = roaring_fkey_bigint_contains_int_array,
+      commutator = =);
+
+exception
+    when duplicate_function then
+         null;
+    when others then
+      raise notice E'Got exception: func roaring_fkey_bigint_contains_int_array';
+
+end; $pl$;
+
+[0m
+  [1m[35m (0.7ms)[0m  [1m[35mdo $pl$
+begin
+
+  CREATE FUNCTION roaring_fkey_bigint_eq_int_array(bigint, integer[])
+  returns boolean language sql immutable as $$
+    SELECT $1::int = ANY($2);
+  $$;
+
+  CREATE OPERATOR == (leftarg = bigint, rightarg = integer[],
+      procedure = roaring_fkey_bigint_eq_int_array,
+      commutator = =);
+
+exception
+    when duplicate_function then
+         null;
+    when others then
+      raise notice E'Got exception: func roaring_fkey_bigint_eq_int_array';
+
+end; $pl$;
+
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mdo $pl$
+begin
+
+  CREATE FUNCTION roaring_fkey_bitmap_contains_bigint(roaringbitmap, bigint)
+  returns boolean language sql immutable as $$
+    SELECT $1 @> $2::int
+  $$;
+
+  CREATE OPERATOR = (leftarg = roaringbitmap, rightarg = bigint,
+      procedure = roaring_fkey_bitmap_contains_bigint,
+      commutator = =);
+
+exception
+    when duplicate_function then
+         null;
+    when others then
+      raise notice E'Got exception: func roaring_fkey_bitmap_contains_bigint';
+
+end; $pl$;
+
+[0m
+  [1m[35m (0.5ms)[0m  [1m[35mdo $pl$
+begin
+
+  CREATE FUNCTION roaring_fkey_bitmap_contains_bigint64(roaringbitmap64, bigint)
+  returns boolean language sql immutable as $$
+    SELECT $1 @> $2
+  $$;
+
+  CREATE OPERATOR = (leftarg = roaringbitmap64, rightarg = bigint,
+      procedure = roaring_fkey_bitmap_contains_bigint64,
+      commutator = =);
+
+exception
+    when duplicate_function then
+         null;
+    when others then
+      raise notice E'Got exception: func roaring_fkey_bitmap_contains_bigint64';
+
+end; $pl$;
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mdo $pl$
+begin
+
+  CREATE FUNCTION roaring_fkey_bitmap_contains_int(roaringbitmap, integer)
+  returns boolean language sql immutable as $$
+    SELECT ($1 @> $2)
+  $$;
+
+  CREATE OPERATOR = (leftarg = roaringbitmap, rightarg = integer,
+      procedure = roaring_fkey_bitmap_contains_int,
+      commutator = =);
+
+exception
+    when duplicate_function then
+         null;
+    when others then
+      raise notice E'Got exception: func roaring_fkey_bitmap_contains_int';
+
+end; $pl$;
+
+[0m
+  [1m[35m (0.3ms)[0m  [1m[35mdo $pl$
+begin
+
+  CREATE FUNCTION roaring_fkey_bitmap_overlaps_array_bigint(roaringbitmap64, bigint[])
+  returns boolean language sql immutable as $$
+    SELECT $1 && (rb_build($2))
+  $$;
+
+  CREATE OPERATOR && (leftarg = roaringbitmap64, rightarg = bigint[],
+      procedure = roaring_fkey_bitmap_overlaps_array_bigint,
+      commutator = &&);
+
+exception
+    when duplicate_function then
+         null;
+    when others then
+      raise notice E'Got exception: func roaring_fkey_bitmap_overlaps_array_bigint';
+
+end; $pl$;
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mdo $pl$
+begin
+
+  CREATE FUNCTION roaring_fkey_bitmap_overlaps_array_int(roaringbitmap, integer[])
+  returns boolean language sql immutable as $$
+    SELECT $1 && (rb_build($2));
+  $$;
+
+  CREATE OPERATOR && (leftarg = roaringbitmap, rightarg = integer[],
+      procedure = roaring_fkey_bitmap_overlaps_array_int,
+      commutator = &&);
+
+exception
+    when duplicate_function then
+         null;
+    when others then
+      raise notice E'Got exception: func roaring_fkey_bitmap_overlaps_array_int';
+
+end; $pl$;
+
+[0m
+  [1m[35m (0.3ms)[0m  [1m[35mdo $pl$
+begin
+
+  CREATE FUNCTION roaring_fkey_int_array_contains_bigint(integer[], bigint)
+  returns boolean language sql immutable as $$
+    SELECT $2::int = ANY($1)
+  $$;
+
+  CREATE OPERATOR = (leftarg = integer[], rightarg = bigint,
+      procedure = roaring_fkey_int_array_contains_bigint,
+      commutator = =);
+
+exception
+    when duplicate_function then
+         null;
+    when others then
+      raise notice E'Got exception: func roaring_fkey_int_array_contains_bigint';
+
+end; $pl$;
+
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mdo $pl$
+begin
+
+  CREATE FUNCTION roaring_fkey_int_contains_in_bitmap(integer, roaringbitmap)
+  returns boolean language sql immutable as $$
+    SELECT $2 @> $1
+  $$;
+
+  CREATE OPERATOR == (leftarg = integer, rightarg = roaringbitmap,
+      procedure = roaring_fkey_int_contains_in_bitmap,
+      commutator = =);
+
+exception
+    when duplicate_function then
+         null;
+    when others then
+      raise notice E'Got exception: func roaring_fkey_int_contains_in_bitmap';
+
+end; $pl$;
+
+[0m
+  [1m[35m (0.3ms)[0m  [1m[35mdo $pl$
+begin
+  CREATE FUNCTION roaring_fkey_version()
+    returns int language sql immutable as $$
+        SELECT 0233
+  $$;
+exception
+    when duplicate_function then
+         null;
+    when others then
+      raise notice E'Got exception: func roaring_fkey_version';
+
+end; $pl$;
+
+[0m
+  [1m[35m (0.3ms)[0m  [1m[35mdo $pl$
+begin
+
+  CREATE FUNCTION roaringbitmap64_count(integer, roaringbitmap64)
+  returns int language sql immutable as $$
+    SELECT $1+rb_cardinality($2)
+  $$;
+
+  CREATE aggregate count (roaringbitmap64) (
+      sfunc = roaringbitmap64_count,
+      stype = integer,
+      initcond = 0
+  );
+  --alter aggregate count (roaringbitmap64) owner to postgres;
+
+exception
+    when duplicate_function then
+         null;
+    when others then
+      raise notice E'Got exception: roaring_fkey func roaringbitmap64_count(roaringbitmap64)';
+
+end; $pl$;
+[0m
+  [1m[35m (0.3ms)[0m  [1m[35mdo $pl$
+begin
+
+  CREATE FUNCTION roaringbitmap64_max(integer, roaringbitmap64)
+  returns int language sql immutable as $$
+    SELECT GREATEST($1, rb_max($2))
+  $$;
+
+  CREATE aggregate max (roaringbitmap64) (
+      sfunc = roaringbitmap64_max,
+      stype = integer,
+      initcond = 0
+  );
+  --alter aggregate max (roaringbitmap64) owner to postgres;
+
+exception
+    when duplicate_function then
+         null;
+    when others then
+      raise notice E'Got exception: roaring_fkey func roaringbitmap64_max(roaringbitmap64)';
+
+end; $pl$;
+[0m
+  [1m[35m (0.3ms)[0m  [1m[35mdo $pl$
+begin
+
+  CREATE FUNCTION roaringbitmap64_min(integer, roaringbitmap64)
+  returns int language sql immutable as $$
+    SELECT LEAST($1, rb_min($2))
+  $$;
+
+  CREATE aggregate min (roaringbitmap64) (
+      sfunc = roaringbitmap64_min,
+      stype = integer,
+      initcond = 0
+  );
+  --alter aggregate min (roaringbitmap64) owner to postgres;
+
+exception
+    when duplicate_function then
+         null;
+    when others then
+      raise notice E'Got exception: roaring_fkey func roaringbitmap64_min(roaringbitmap64)';
+
+end; $pl$;
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mdo $pl$
+begin
+
+  CREATE FUNCTION roaringbitmap_count(integer, roaringbitmap)
+  returns int language sql immutable as $$
+    SELECT $1+rb_cardinality($2)
+  $$;
+
+  CREATE aggregate count (roaringbitmap) (
+      sfunc = roaringbitmap_count,
+      stype = integer,
+      initcond = 0
+  );
+  --alter aggregate count (roaringbitmap) owner to postgres;
+
+exception
+    when duplicate_function then
+         null;
+    when others then
+      raise notice E'Got exception: roaring_fkey func roaringbitmap_count(roaringbitmap)';
+
+end; $pl$;
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mdo $pl$
+begin
+
+  CREATE FUNCTION roaringbitmap_max(integer, roaringbitmap)
+  returns int language sql immutable as $$
+    SELECT GREATEST($1, rb_max($2))
+  $$;
+
+  CREATE aggregate max (roaringbitmap) (
+      sfunc = roaringbitmap_max,
+      stype = integer,
+      initcond = 0
+  );
+  --alter aggregate max (roaringbitmap) owner to postgres;
+
+exception
+    when duplicate_function then
+         null;
+    when others then
+      raise notice E'Got exception: roaring_fkey func roaringbitmap_max(roaringbitmap)';
+
+end; $pl$;
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mdo $pl$
+begin
+
+  CREATE FUNCTION roaringbitmap_min(integer, roaringbitmap)
+  returns int language sql immutable as $$
+    SELECT LEAST($1, rb_max($2))
+  $$;
+
+  CREATE aggregate min (roaringbitmap) (
+      sfunc = roaringbitmap_min,
+      stype = integer,
+      initcond = 0
+  );
+  --alter aggregate min (roaringbitmap) owner to postgres;
+
+exception
+    when duplicate_function then
+         null;
+    when others then
+      raise notice E'Got exception: roaring_fkey func roaringbitmap_min(roaringbitmap)';
+
+end; $pl$;
+[0m
+  [1m[35m (0.3ms)[0m  [1m[35mdo $pl$
+begin
+
+  CREATE FUNCTION roaring_fkey_bigint_contains_in_bitmap64(bigint, roaringbitmap64)
+  returns boolean language sql immutable as $$
+    SELECT $2 @> $1
+  $$;
+
+  CREATE OPERATOR == (leftarg = bigint, rightarg = roaringbitmap64,
+      procedure = roaring_fkey_bigint_contains_in_bitmap64,
+      commutator = =);
+
+exception
+    when duplicate_function then
+         null;
+    when others then
+      raise notice E'Got exception: func roaring_fkey_bigint_contains_in_bitmap64';
+
+end; $pl$;
+[0m
+  [1m[35m (0.2ms)[0m  [1m[35mdo $pl$
+begin
+
+  CREATE FUNCTION roaring_fkey_bitmap_contains_bigint64(roaringbitmap64, bigint)
+  returns boolean language sql immutable as $$
+    SELECT $1 @> $2
+  $$;
+
+  CREATE OPERATOR = (leftarg = roaringbitmap64, rightarg = bigint,
+      procedure = roaring_fkey_bitmap_contains_bigint64,
+      commutator = =);
+
+exception
+    when duplicate_function then
+         null;
+    when others then
+      raise notice E'Got exception: func roaring_fkey_bitmap_contains_bigint64';
+
+end; $pl$;
+[0m
+  [1m[35m (0.3ms)[0m  [1m[35mdo $pl$
+begin
+
+  CREATE FUNCTION roaringbitmap64_count(integer, roaringbitmap64)
+  returns int language sql immutable as $$
+    SELECT $1+rb_cardinality($2)
+  $$;
+
+  CREATE aggregate count (roaringbitmap64) (
+      sfunc = roaringbitmap64_count,
+      stype = integer,
+      initcond = 0
+  );
+  --alter aggregate count (roaringbitmap64) owner to postgres;
+
+exception
+    when duplicate_function then
+         null;
+    when others then
+      raise notice E'Got exception: roaring_fkey func roaringbitmap64_count(roaringbitmap64)';
+
+end; $pl$;
+[0m
+  [1m[35m (0.3ms)[0m  [1m[35mdo $pl$
+begin
+
+  CREATE FUNCTION roaringbitmap64_max(integer, roaringbitmap64)
+  returns int language sql immutable as $$
+    SELECT GREATEST($1, rb_max($2))
+  $$;
+
+  CREATE aggregate max (roaringbitmap64) (
+      sfunc = roaringbitmap64_max,
+      stype = integer,
+      initcond = 0
+  );
+  --alter aggregate max (roaringbitmap64) owner to postgres;
+
+exception
+    when duplicate_function then
+         null;
+    when others then
+      raise notice E'Got exception: roaring_fkey func roaringbitmap64_max(roaringbitmap64)';
+
+end; $pl$;
+[0m
+  [1m[35m (0.3ms)[0m  [1m[35mdo $pl$
+begin
+
+  CREATE FUNCTION roaringbitmap64_min(integer, roaringbitmap64)
+  returns int language sql immutable as $$
+    SELECT LEAST($1, rb_min($2))
+  $$;
+
+  CREATE aggregate min (roaringbitmap64) (
+      sfunc = roaringbitmap64_min,
+      stype = integer,
+      initcond = 0
+  );
+  --alter aggregate min (roaringbitmap64) owner to postgres;
+
+exception
+    when duplicate_function then
+         null;
+    when others then
+      raise notice E'Got exception: roaring_fkey func roaringbitmap64_min(roaringbitmap64)';
+
+end; $pl$;
+[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.2ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20251119063049') RETURNING "version"[0m
+  [1m[36mTRANSACTION (0.4ms)[0m  [1m[35mCOMMIT[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.5ms)[0m  [1m[34mSELECT "ar_internal_metadata".* FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = 'environment' LIMIT 1[0m
+  [1m[35m (0.3ms)[0m  [1m[34mSELECT pg_advisory_unlock(4880462094319175175)[0m
+  [1m[35m (0.6ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[35m (0.4ms)[0m  [1m[34mSELECT "ar_internal_metadata"."value" FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = 'environment'[0m
+  [1m[35m (0.2ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[35m (0.5ms)[0m  [1m[34mSELECT "ar_internal_metadata"."value" FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = 'environment'[0m
+  [1m[35m (0.3ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[35m (0.3ms)[0m  [1m[34mSELECT "ar_internal_metadata"."value" FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = 'environment'[0m
+  [1m[35m (5029.7ms)[0m  [1m[35mDROP DATABASE IF EXISTS "pgroaringbitmap_test"[0m
+  [1m[35m (0.5ms)[0m  [1m[34m              SELECT roaring_fkey_version();
+[0m
+  [1m[35m (0.4ms)[0m  [1m[34m              SELECT roaring_fkey_version();
+[0m
+  [1m[35m (0.3ms)[0m  [1m[34m              SELECT roaring_fkey_version();
+[0m
+  [1m[35m (0.2ms)[0m  [1m[34m              SELECT roaring_fkey_version();
+[0m
+  [1m[35m (0.2ms)[0m  [1m[34mSELECT pg_try_advisory_lock(4880462094319175175)[0m
+  [1m[35m (0.5ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.5ms)[0m  [1m[34mSELECT "ar_internal_metadata".* FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = 'environment' LIMIT 1[0m
+  [1m[35m (0.3ms)[0m  [1m[34mSELECT pg_advisory_unlock(4880462094319175175)[0m

@@ -4,3 +4,5 @@
 /tmp/
 /log/
 .env
+bench.md
+/ai/

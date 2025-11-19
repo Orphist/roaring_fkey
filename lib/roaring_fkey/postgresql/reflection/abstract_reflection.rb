@@ -56,6 +56,15 @@ module RoaringFkey
                 ::Arel::Nodes::And.new([source_attr.contains(klass_attr), ids_not_empty])
             )
           end
+          if source_attr.is_a?(AREL_ATTR) && source_attr.type_caster.type.eql?(:roaringbitmap64)
+            # working with operator && and function roaringbitmap_overlaps:
+            # ON (user_groups.user_ids @> users.id::int AND NOT(rb_is_empty(user_ids)) )
+            klass_attr = ::Arel::Nodes.build_quoted(klass_attr.cast(:bigint))
+            ids_not_empty = ::Arel::Nodes::NamedFunction.new('rb64_is_empty', [source_attr]).not
+            return ::Arel::Nodes::Grouping.new(
+                ::Arel::Nodes::And.new([source_attr.contains(klass_attr), ids_not_empty])
+            )
+          end
 
           # Apply an ANY operation which checks if the single value on the left
           # side exists in the array on the right side

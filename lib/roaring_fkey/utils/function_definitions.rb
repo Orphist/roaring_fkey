@@ -7,7 +7,8 @@ module RoaringFkey
     module FunctionDefinitions
       class << self
         def from_fs
-          function_paths = Dir.glob(File.join(__dir__, "..", "..", "generators", "roaring_fkey", "install", "functions", "*.sql"))
+          function_paths = Dir.glob(File.join(__dir__, "..", "..", "generators", "roaring_fkey", "install", "functions", "*.sql")) +
+            Dir.glob(File.join(__dir__, "..", "..", "generators", "roaring_fkey", "install", "functions", "*64*.sql"))
           function_paths.map do |path|
             name = path.match(/([^\/]+)\.sql/)[1]
 

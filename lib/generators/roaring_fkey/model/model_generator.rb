@@ -18,6 +18,7 @@ module RoaringFkey
 
       class_option :path, type: :string, optional: true, desc: "Specify path to the model file"
       class_option :name, type: :string, optional: true, desc: "Migration name"
+      class_option :type, type: :string, default: 'roaringbitmap64', desc: "Bitmap type: roaringbitmap or roaringbitmap64"
 
       def generate_migration
         if reference_name.blank?
@@ -30,7 +31,8 @@ module RoaringFkey
 
       def inject_roaring_fkey_to_model
         indents = "  " * (class_name.scan("::").count + 1)
-        code_snippet = "#{indents}belongs_to_many :#{reference_name.pluralize}, anonymous_class: #{reference_name.classify}, foreign_key: :#{fkey}, inverse_of: false\n"
+        bitmap_type = options[:type]
+        code_snippet = "#{indents}belongs_to_many :#{reference_name.pluralize}, anonymous_class: #{reference_name.classify}, foreign_key: :#{fkey}, inverse_of: false, type: :#{bitmap_type}\n"
         inject_into_class(model_file_path, class_name.demodulize, code_snippet)
       end
 
@@ -53,10 +55,6 @@ module RoaringFkey
         def fkey
           reference_name + "_ids"
         end
-
-        # def precision
-        #   options[:precision]
-        # end
       end
 
       private

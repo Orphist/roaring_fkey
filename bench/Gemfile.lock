@@ -59,8 +59,6 @@ GEM
     activerecord (6.1.7.10)
       activemodel (= 6.1.7.10)
       activesupport (= 6.1.7.10)
-    activerecord-import (1.0.8)
-      activerecord (>= 3.2)
     activestorage (6.1.7.10)
       actionpack (= 6.1.7.10)
       activejob (= 6.1.7.10)
@@ -190,7 +188,6 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  activerecord-import
   benchmark-ips
   dotenv
   faker

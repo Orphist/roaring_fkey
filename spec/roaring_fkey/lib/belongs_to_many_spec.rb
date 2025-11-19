@@ -72,6 +72,56 @@ RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
     end
   end
 
+  context 'roaringbitmap64 in joins' do
+    before do
+      Video.belongs_to_many(:tags)
+      Tag.belongs_to_many(:comments)
+    end
+
+    it 'can joins records' do
+      query = Video.all.joins(:tags)
+      query_sql = %{INNER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::int AND NOT (rb64_is_empty("videos"."tag_ids")))}
+      expect(query.to_sql).to must_be_like(query_sql)
+      expect { query.load }.not_to raise_error
+    end
+
+    it 'can joins reference' do
+      query = Video.includes(tags: :comments).references(:tags).where("tags.id is not null")
+      query_sql = %{LEFT OUTER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::int AND NOT (rb64_is_empty("videos"."tag_ids")))}
+      expect(query.to_sql).to must_be_like(query_sql)
+      query_sql = %{LEFT OUTER JOIN "comments" ON ("tags"."comment_ids" @> "comments"."id"::int AND NOT (rb64_is_empty("tags"."comment_ids")))}
+      expect(query.to_sql).to must_be_like(query_sql)
+      expect { query.load }.not_to raise_error
+    end
+
+    it 'can 2 joins' do
+      query = Video.joins(tags: :comments).where("tags.id is not null").select('comments.*')
+      query_sql = %{INNER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::int AND NOT (rb64_is_empty("videos"."tag_ids")))}
+      expect(query.to_sql).to must_be_like(query_sql)
+      query_sql = %{INNER JOIN "comments" ON ("tags"."comment_ids" @> "comments"."id"::int AND NOT (rb64_is_empty("tags"."comment_ids")))}
+      expect(query.to_sql).to must_be_like(query_sql)
+      expect { query.load }.not_to raise_error
+    end
+
+    it 'can left join' do
+      query = Video.left_outer_joins(:tags)
+      query_sql = %{LEFT OUTER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::int AND NOT (rb64_is_empty("videos"."tag_ids")))}
+      expect(query.to_sql).to must_be_like(query_sql)
+    end
+
+    it 'merge w/join && query counting' do
+      relation = Video.all.merge!(select: "distinct videos.*",
+                         includes: [tags: :comments],
+                         references: :tags,
+                         where: "1=1", order: "videos.id")
+      query_count_eq(2) do
+        relation.to_a
+      end
+      query_sql = %{LEFT OUTER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::int AND NOT (rb64_is_empty("videos"."tag_ids")))}
+      expect(relation.to_sql).to must_be_like(query_sql)
+    end
+  end
+
   context 'roaringbitmap on association video.tag_ids' do
     let(:other) { Tag }
     let(:initial) { FactoryBot.create(:tag) }
@@ -661,6 +711,229 @@ RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
       expect(game.players.first.previous_changes.any?).to be false #???? these are the same previous changes as before
       
       # 3 when game and player both have new information and you save 
+      # game only game is updated therefore the previous_changes the player had in step one are still there
+      game.name = 'Hello 2'
+      player.name = 'bar'
+      expect(game.changed?).to be true
+      expect(game.changed).to eq ['name']
+      expect(game.changes).to eq("name"=>['Hello', 'Hello 2'])
+      game.name_changed?(from: 'Hello', to: 'Hello 2') # => true
+      game.save
+      expect(game.previous_changes.any?).to be_present
+      expect(game.players.first.previous_changes["name"]).to be_blank # player didn't get updated
+    end
+
+    it 'can join Game.where(id: games[1..2]).player_ids << players[-1]' do
+      game = Game.second
+      game.player_ids << players[2..3].map(&:id)
+      expect(game.players).to eq(players[2..3])
+      game.save!
+      expect(game.players).to eq(players[2..3])
+      expect(game.reload.players.last).to eq(players[3])
+    end
+
+    it "should construct new finder sql after create" do
+      game = Game.new
+      expect(game.players.to_a).to(eq([]))
+      player = Player.create!(name: "clark-sydney")
+      game.players << player
+      game.save!
+      expect(game.players.find(player.id)).to eq(player)
+    end
+  end
+
+  context 'using roaringbitmap64' do
+    let(:connection) { ActiveRecord::Base.connection }
+    let(:other) { player.create }
+
+    class Player < ActiveRecord::Base
+      self.table_name = 'players'
+    end
+
+    class Game < ActiveRecord::Base
+      self.table_name = 'games'
+
+      options = { anonymous_class: Player, foreign_key: :player_ids }
+      options[:inverse_of] = false# if RoaringFkey::PostgreSQL::AR610
+      belongs_to_many :players, **options
+    end
+
+    # TODO: Set as a shared example
+    before do
+      connection.drop_table(:players) if connection.table_exists?(:players)
+      connection.drop_table(:games) if connection.table_exists?(:games)
+
+      connection.create_table(:players) { |t| t.string :name }
+      connection.create_table(:games) { |t| t.string :name; t.column :player_ids, :roaringbitmap64 }
+    end
+
+    let!(:games) { 5.times.map { Game.create } }
+    let!(:players) { 5.times.map { Player.create(name: %w[Ace Bobby Leonard Doozer].sample) } }
+
+    it 'can Game.first.players =' do
+      game = Game.first
+      game.players = players[0..1]
+      game.save!
+      expect(Game.find(games[0].id).players.first).to be_eql(players[0])
+      # Game.find(games[0].id)
+    end
+
+    # player_ids << [1,3] FAIL
+    it 'can Game.first.player_ids << ' do
+      game = Game.second
+      # Tracer.on
+      game.player_ids << players[2..3].map(&:id)
+      # Tracer.on
+      # Tracer.add_filter do |event, file, line, id, binding, klass, *rest|
+      #   #!%r[rubies|gems].match?(file)
+      #   %r[roaring-pg|roaringbitmap].match?(file)
+      # end
+      expect(game.players).to eq(players[2..3])
+      game.save!
+      # Tracer.off
+      # game.update!(player_ids: players[2..3].map(&:id), name: 'new name')
+      # game.save!
+      # Tracer.off
+      # binding.pry
+      expect(game.reload.players.last).to be_eql(players[3])
+    end
+
+    it 'can Game.find(games[1].id).players << ' do
+      # binding.pry
+      game = Game.find(games[1].id)
+      game.players << players[0..1]
+      game.save!
+      expect(game.reload.players.last).to be_eql(players[1])
+    end
+
+    it 'can Game.find(games[2].id).players << ' do
+      # expect(subject.tags.first.id).to be_eql(new_tag.id)
+      game = Game.find(games[1].id)
+      game.players << players[-2]
+      game.save!
+      expect(Game.find(games[1].id).players.first).to be_eql(players[-2])
+    end
+
+    it 'can game = Game.second;game.players = players[2..3] ' do
+      game = Game.second
+      game.players = players[2..3]
+      game.save!
+      # expect(game.players.first).to be_eql(players[2]) #=>fail FROM "players" WHERE "players"."id" IN ('{3,4}')
+      expect(game.reload.players.first).to be_eql(players[2])
+    end
+
+    it 'can game = Game.second;game.player_ids = players[2..3].map(&:id)' do
+      game = Game.second
+      game.player_ids = players[2..3].map(&:id)
+      game.save!
+      # expect(game.players.first).to be_eql(players[2]) #=>fail FROM "players" WHERE "players"."id" IN ('{3,4}')
+      expect(game.reload.players.first).to be_eql(players[2])
+      expect(game.reload.players.count).to eq(2)
+    end
+
+    it 'can game = Game.create(player_ids = players[2..3].map(&:id))' do
+      game = Game.create!(player_ids: players[2..3].map(&:id))
+      # expect(game.players.first).to be_eql(players[2]) #=>fail FROM "players" WHERE "players"."id" IN ('{3,4}')
+      expect(game.reload.players.first).to be_eql(players[2])
+      expect(game.reload.players.count).to eq(2)
+    end
+
+    it 'where(player_ids:[2,4]) && where(player_ids:2)- ret game' do
+      # Tracer.on
+      ids = players[2..3].map(&:id)
+      game = Game.create(player_ids: ids)
+      expect(Game.where(player_ids: players[2].id).take).to eq(game)
+      expect(Game.where(player_ids: [players[2].id]).take).to eq(game)
+      expect(Game.where(player_ids: ids).take).to eq(game)
+            #   ERROR:  operator does not exist: roaringbitmap64 && roaringbitmap
+            #   LINE 1: ..."games".* FROM "games" WHERE "games"."player_ids" && rb_buil...
+
+      # Tracer.off
+    end
+
+    it 'Game.find_by(player_ids:[2,4]) - ret game' do
+      game = Game.create(player_ids: players[2..3].map(&:id))
+      expect(Game.find_by(player_ids: [players[2].id])).to eq(game)
+    end
+
+    it 'where.not(player_ids:[2,4]) can game = Game.find_by(player_ids: players[2..3].map(&:id))' do
+      game1 = Game.create(player_ids: [players[1].id])
+      game2 = Game.create(player_ids: players[2..3].map(&:id))
+      expect(Game.where(player_ids: players[2].id).take).to eq(game2)
+      expect(Game.find_by(player_ids: [players[2].id])).to eq(game2)
+      # Tracer.on
+      expect(Game.where.not(player_ids: players[2].id).take).to eq(game1)
+      # Tracer.off
+    end
+
+    it 'where(player_ids:[2,4]) can game = Game.find_by(player_ids: players[2..3].map(&:id))', :sql do
+      game = Game.create(player_ids: players[2..3].map(&:id))
+      sql = Game.where(player_ids: players[2].id).to_sql
+      expect(sql).to must_be_like(%{"games"."player_ids" @> #{players[2].id}})
+      sql = Game.where(player_ids: players[2..2].map(&:id)).to_sql
+      expect(sql).to match(/"games"."player_ids" @> #{players[2].id}/i)
+      sql = Game.where(player_ids: [3]).to_sql
+      expect(sql).to match(/"games"."player_ids" @> 3/i)
+      sql = Game.where.not(player_ids: players[2].id).to_sql
+      expect(sql).to must_be_like(%{NOT("games"."player_ids" @> #{players[2].id})})
+    end
+
+    it 'None where.not(player_ids: {some empty conditions})', :sql do
+      sql = Game.where.not(player_ids: Player.none).to_sql
+      expect(sql).to must_be_like(%{NOT rb64_is_empty("games"."player_ids")})
+      sql = Game.where.not(player_ids: nil).to_sql
+      expect(sql).to must_be_like(%{NOT rb64_is_empty("games"."player_ids")})
+      sql = Game.where.not(player_ids: []).to_sql
+      expect(sql).to must_be_like(%{NOT rb64_is_empty("games"."player_ids")})
+    end
+
+    it 'None where(player_ids:[])', :sql do
+      sql = Game.where(player_ids: []).to_sql
+      expect(sql).to must_be_like(%{rb_is_empty("games"."player_ids")})
+    end
+
+    it 'can Game.find(games[2].id).players << ' do
+      game = Game.first
+      game.players << players[-1]
+      game.save!
+      expect(game.reload.players.first).to be_eql(players[-1])
+      expect(game.reload.players.count).to be_eql(1)
+    end
+
+    # FixMe: player_ids << [1,4] FAIL
+    # But: if
+    #   game.player_ids << [3,4]
+    #   game.players
+    #   game.save!
+    #   OK - when save players
+    xit 'can join Game.where(id: games[1..2]).player_ids << players[-1]' do
+      game = Game.second
+      game.player_ids << players[2..3].map(&:id)
+      game.save!
+      expect(game.reload.players.last).to be_eql(players[3])
+    end
+
+    # ToDo: fix the previous_changes && saved_changes - its active model support - .changed etc
+    xit 'can assocs have previous_changes && saved_changes' do
+      game = Game.new
+      game.name = 'Hello'
+      player = Player.new
+      game.players = [player]
+      player.name = 'foo'
+
+      # 1 when neither game nor player are yet persisted and they have new
+      # info, game.save updates both and previous_changes exist for both
+      game.save
+      expect(game.previous_changes.any?).to be false
+      expect(game.players.count).to eq 1
+      expect(game.players.first.previous_changes.any?).to be_present #????
+
+      # 2 when you save game with no changes previous_changes becomes empty
+      game.save
+      expect(game.previous_changes.any?).to be false # previous_changed == {}
+      expect(game.players.first.previous_changes.any?).to be false #???? these are the same previous changes as before
+
+      # 3 when game and player both have new information and you save
       # game only game is updated therefore the previous_changes the player had in step one are still there
       game.name = 'Hello 2'
       player.name = 'bar'

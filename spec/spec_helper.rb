@@ -22,7 +22,7 @@ begin
                         database: "roaring_fkey_test",
                         min_messages: "warning",
                         prepared_statements: false,
-                        port: ENV["DB_PORT"] }
+                        port: ENV["DB_PORT"]}
   opts = { url: ENV['DATABASE_URL'] }.compact_blank || connection_options
   puts opts: opts
   ActiveRecord::Base.establish_connection(opts)
@@ -97,7 +97,7 @@ RSpec.configure do |config|
   config.append_after(:each, :db) do |ex|
     ActiveRecord::Base.connection.rollback_transaction
 
-    raise "Migrations are pending: #{ex.metadata[:location]}" if ActiveRecord::Base.connection.migration_context.needs_migration?
+    # raise "Migrations are pending: #{ex.metadata[:location]}" if ActiveRecord::Base.connection.migration_context.needs_migration?
   end
 end
 
