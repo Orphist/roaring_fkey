@@ -88,7 +88,7 @@ class InitSchema < ActiveRecord::Migration[6.1]
     t.string :last_name
     t.string :title
 
-    t.roaringbitmap :book_ids
+    t.roaringbitmap64 :book_ids
 
     t.timestamps
   end
@@ -96,7 +96,7 @@ class InitSchema < ActiveRecord::Migration[6.1]
   create_table :roaring_fkey_suppliers do |t|
     t.string :name
 
-    t.roaringbitmap :book_ids
+    t.roaringbitmap64 :book_ids
 
     t.timestamps
   end
@@ -109,8 +109,8 @@ class InitSchema < ActiveRecord::Migration[6.1]
     t.integer :year_published
     t.boolean :out_of_print
 
-    t.roaringbitmap :review_ids
-    t.roaringbitmap :order_ids
+    t.roaringbitmap64 :review_ids
+    t.roaringbitmap64 :order_ids
 
     t.timestamps
   end
@@ -119,8 +119,8 @@ class InitSchema < ActiveRecord::Migration[6.1]
     t.string :name
     t.integer :visits
 
-    t.roaringbitmap :review_ids
-    t.roaringbitmap :order_ids
+    t.roaringbitmap64 :review_ids
+    t.roaringbitmap64 :order_ids
 
     t.timestamps
   end
@@ -129,7 +129,7 @@ class InitSchema < ActiveRecord::Migration[6.1]
     t.integer :status
     t.integer :total
 
-    t.roaringbitmap :book_ids
+    t.roaringbitmap64 :book_ids
 
     t.references :roaring_fkey_customer, foreign_key: true
 

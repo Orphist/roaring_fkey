@@ -22,7 +22,7 @@ begin
                         database: "roaring_fkey_test",
                         min_messages: "warning",
                         prepared_statements: false,
-                        port: ENV["DB_PORT"] }
+                        port: ENV["DB_PORT"]}
   opts = { url: ENV['DATABASE_URL'] }.compact_blank || connection_options
   puts opts: opts
   ActiveRecord::Base.establish_connection(opts)
@@ -49,6 +49,9 @@ end
 require "acceptance_helper"
 
 I18n.load_path << Pathname.pwd.join('spec', 'roaring_fkey', 'en.yml')
+
+ActiveRecord::Base.logger = Logger.new(STDOUT)
+ActiveRecord::Base.logger.level = Logger::DEBUG
 
 RSpec.configure do |config|
   config.extend Mocks::CreateTable
@@ -99,6 +102,21 @@ RSpec.configure do |config|
 
     raise "Migrations are pending: #{ex.metadata[:location]}" if ActiveRecord::Base.connection.migration_context.needs_migration?
   end
+  config.backtrace_exclusion_patterns = [
+    %r{spec/support},
+    %r{bin/rspec},
+    %r{bin/ruby},
+    %r{gems/raven},
+    %r{gems/rspec},
+    %r{gems/rack},
+   # %r{gems/railties},
+    %r{gems/rspec-core},
+   #%r{gems/acti},
+    /rspec-core/,
+    %r{gems/rspec-core},
+    %r{gems/pry},
+    %r{gems/factory}
+  ]
 end
 
 RSpec::Matchers.define_negated_matcher :not_change, :change

@@ -5,7 +5,7 @@ module RoaringFkey
     module Adapter
       module DatabaseStatements
 
-        EXTENDED_DATABASE_TYPES = %i(roaringbitmap)
+        EXTENDED_DATABASE_TYPES = %i(roaringbitmap roaringbitmap64)
 
         # Switch between dump mode or not
         def dump_mode!

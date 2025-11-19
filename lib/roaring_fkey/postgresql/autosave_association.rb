@@ -27,8 +27,15 @@ module RoaringFkey
         previously_new_record_before_save = (@new_record_before_save ||= false)
         @new_record_before_save = new_record?
 
-        association = association_instance_get(reflection.name)
-        association&.build_changes { save_collection_association(reflection) }
+        association = association(reflection.name)
+        
+        # Only use build_changes if the association supports it (BelongsToManyAssociation)
+        # Otherwise fall back to standard save_collection_association
+        if association.respond_to?(:build_changes)
+          association.build_changes { save_collection_association(reflection) }
+        else
+          save_collection_association(reflection)
+        end
       rescue ::ActiveRecord::RecordInvalid
         throw(:abort)
       ensure

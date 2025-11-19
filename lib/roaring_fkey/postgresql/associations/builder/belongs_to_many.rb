@@ -10,7 +10,7 @@ module RoaringFkey
           end
 
           def self.valid_options(options)
-            super + [:touch, :optional, :default, :dependent, :primary_key, :required]
+            super + [:touch, :optional, :default, :dependent, :primary_key, :required, :primary_key_type]
           end
 
           def self.valid_dependent_options

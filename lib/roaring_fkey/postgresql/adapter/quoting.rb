@@ -35,17 +35,9 @@ module RoaringFkey
           def _quote(value)
             case value
               when Array
-                # p ['array'*3]
-                # puts caller.map { |v| v.match(/roaring.*\/(.*)/).try(:[], 1).to_s.strip }.reject(&:blank?).join("\n")
-                # values = value.map(&method(:quote))
                 "ARRAY[#{value.map(&method(:quote)).join(','.freeze)}]"
-              # when ::RoaringFkey::PostgreSQL::Adapter::OID::Roaringbitmap::Datata
-              when ::ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Roaringbitmap::Datata
-                # p ["*Roarrrr!!!*"*3, "_quote_roaringbiymap"]
-                # binding.pry #unless value.values.is_a?(Array)
-                # "rb_to_array(#{value.values.flatten.join(',')})"
-                # "ARRAY[#{value.values.join(','.freeze)}]"
-                # value._string
+            when ::ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Roaringbitmap::Datata ||
+              ::ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Roaringbitmap64::Datata
                 value.to_s
               else
                 super
@@ -56,20 +48,6 @@ module RoaringFkey
             return super unless value.is_a?(Array)
             value.map(&method(:quote)).join(','.freeze)
           end
-
-        # def type_casted_binds(binds)
-        #   unless binds.empty?
-        #     p binds
-        #     binding.pry
-        #   end
-        #   case binds.first
-        #     when RoaringbitmapType::Datata
-        #       binding.pry
-        #       binds.map { |column, value| type_cast(value, column) }
-        #   else
-        #     super
-        #   end
-        # end
       end
     end
   end

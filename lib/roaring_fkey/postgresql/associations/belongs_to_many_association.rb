@@ -2,7 +2,6 @@
 
 require 'active_record/associations/collection_association'
 
-# FIXME: build, create
 module RoaringFkey
   module PostgreSQL
     module Associations
@@ -137,10 +136,11 @@ module RoaringFkey
           def ids_rewriter(ids, operator)
             list = owner[source_attr] ||= []
             list = list.public_send(operator, ids)
-            owner[source_attr] = list.uniq.compact.presence || column_default_value
+            cleaned_list = list.uniq.compact.presence || column_default_value
+            owner[source_attr] = cleaned_list
 
             return if @_building_changes || !owner.persisted?
-            owner.update_attribute(source_attr, list)
+            owner.update_attribute(source_attr, cleaned_list)
           end
 
           def column_default_value

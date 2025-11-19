@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
 
   s.require_paths = ['lib']
 
-  s.files = %w(LICENSE.txt CHANGELOG.md README.md Rakefile) + Dir['lib/**/*rb']
+  s.files = %w(LICENSE.md CHANGELOG.md README.md Rakefile) + Dir['lib/**/*rb']
 
   s.add_dependency 'activerecord', '~> 6.1'
   s.add_dependency 'activesupport', '~> 6.1'
@@ -31,7 +31,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rspec-rails', '~> 3.5', '>= 3.5.0'
   s.add_development_dependency 'factory_bot', '~> 6.2', '>= 6.2.1'
   s.add_development_dependency 'faker', '~> 2.20'
-  s.add_development_dependency 'activerecord-import'
 
   s.add_dependency 'byebug'
   s.add_dependency 'pry'

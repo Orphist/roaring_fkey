@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    roaring_fkey (0.2.33)
+    roaring_fkey (0.3.2)
       activerecord (~> 6.1)
       activesupport (~> 6.1)
       byebug
@@ -31,14 +31,14 @@ GEM
     activerecord (6.1.7.10)
       activemodel (= 6.1.7.10)
       activesupport (= 6.1.7.10)
-    activerecord-import (1.8.1)
-      activerecord (>= 4.2)
     activesupport (6.1.7.10)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (>= 1.6, < 2)
       minitest (>= 5.1)
       tzinfo (~> 2.0)
       zeitwerk (~> 2.3)
+    base64 (0.3.0)
+    bigdecimal (3.3.1)
     builder (3.3.0)
     byebug (11.1.3)
     coderay (1.1.3)
@@ -46,6 +46,7 @@ GEM
     crass (1.0.6)
     diff-lcs (1.5.1)
     dotenv (2.8.1)
+    drb (2.2.3)
     erubi (1.13.0)
     factory_bot (6.5.0)
       activesupport (>= 5.0.0)
@@ -59,10 +60,11 @@ GEM
     method_source (1.1.0)
     mini_portile2 (2.8.7)
     minitest (5.25.1)
-    nokogiri (1.16.7)
+    mutex_m (0.3.0)
+    nokogiri (1.18.10)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
-    nokogiri (1.16.7-x86_64-linux)
+    nokogiri (1.18.10-x86_64-linux-gnu)
       racc (~> 1.4)
     pg (1.5.9)
     pry (0.14.2)
@@ -111,6 +113,7 @@ GEM
       rspec-support (~> 3.9.0)
     rspec-support (3.9.4)
     thor (1.3.2)
+    tracer (0.2.3)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     zeitwerk (2.6.18)
@@ -120,15 +123,19 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  activerecord-import
+  base64
+  bigdecimal
   byebug
   dotenv (~> 2.1, >= 2.1.1)
+  drb
   factory_bot (~> 6.2, >= 6.2.1)
   faker (~> 2.20)
+  mutex_m
   rake
   roaring_fkey!
   rspec (~> 3.5, >= 3.5.0)
   rspec-rails (~> 3.5, >= 3.5.0)
+  tracer
 
 BUNDLED WITH
    2.5.10

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
@@ -30,14 +32,14 @@ RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
 
     it 'can joins records' do
       query = Video.all.joins(:tags)
-      query_sql = %{INNER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::int AND NOT (rb_is_empty("videos"."tag_ids")))}
+      query_sql = %{INNER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::bigint AND NOT (rb64_is_empty("videos"."tag_ids")))}
       expect(query.to_sql).to must_be_like(query_sql)
       expect { query.load }.not_to raise_error
     end
 
     it 'can joins reference' do
       query = Video.includes(tags: :comments).references(:tags).where("tags.id is not null")
-      query_sql = %{LEFT OUTER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::int AND NOT (rb_is_empty("videos"."tag_ids")))}
+      query_sql = %{LEFT OUTER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::bigint AND NOT (rb64_is_empty("videos"."tag_ids")))}
       expect(query.to_sql).to must_be_like(query_sql)
       query_sql = %{LEFT OUTER JOIN "comments" ON ("tags"."comment_ids" @> "comments"."id"::int AND NOT (rb_is_empty("tags"."comment_ids")))}
       expect(query.to_sql).to must_be_like(query_sql)
@@ -46,7 +48,7 @@ RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
 
     it 'can 2 joins' do
       query = Video.joins(tags: :comments).where("tags.id is not null").select('comments.*')
-      query_sql = %{INNER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::int AND NOT (rb_is_empty("videos"."tag_ids")))}
+      query_sql = %{INNER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::bigint AND NOT (rb64_is_empty("videos"."tag_ids")))}
       expect(query.to_sql).to must_be_like(query_sql)
       query_sql = %{INNER JOIN "comments" ON ("tags"."comment_ids" @> "comments"."id"::int AND NOT (rb_is_empty("tags"."comment_ids")))}
       expect(query.to_sql).to must_be_like(query_sql)
@@ -55,7 +57,7 @@ RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
 
     it 'can left join' do
       query = Video.left_outer_joins(:tags)
-      query_sql = %{LEFT OUTER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::int AND NOT (rb_is_empty("videos"."tag_ids")))}
+      query_sql = %{LEFT OUTER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::bigint AND NOT (rb64_is_empty("videos"."tag_ids")))}
       expect(query.to_sql).to must_be_like(query_sql)
     end
     
@@ -67,7 +69,57 @@ RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
       query_count_eq(2) do
         relation.to_a
       end
-      query_sql = %{LEFT OUTER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::int AND NOT (rb_is_empty("videos"."tag_ids")))}
+      query_sql = %{LEFT OUTER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::bigint AND NOT (rb64_is_empty("videos"."tag_ids")))}
+      expect(relation.to_sql).to must_be_like(query_sql)
+    end
+  end
+
+  context 'roaringbitmap64 in joins' do
+    before do
+      Video.belongs_to_many(:tags)
+      Tag.belongs_to_many(:comments)
+    end
+
+    it 'can joins records' do
+      query = Video.all.joins(:tags)
+      query_sql = %{INNER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::bigint AND NOT (rb64_is_empty("videos"."tag_ids")))}
+      expect(query.to_sql).to must_be_like(query_sql)
+      expect { query.load }.not_to raise_error
+    end
+
+    it 'can joins reference' do
+      query = Video.includes(tags: :comments).references(:tags).where("tags.id is not null")
+      query_sql = %{LEFT OUTER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::bigint AND NOT (rb64_is_empty("videos"."tag_ids")))}
+      expect(query.to_sql).to must_be_like(query_sql)
+      query_sql = %{LEFT OUTER JOIN "comments" ON ("tags"."comment_ids" @> "comments"."id"::int AND NOT (rb_is_empty("tags"."comment_ids")))}
+      expect(query.to_sql).to must_be_like(query_sql)
+      expect { query.load }.not_to raise_error
+    end
+
+    it 'can 2 joins' do
+      query = Video.joins(tags: :comments).where("tags.id is not null").select('comments.*')
+      query_sql = %{INNER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::bigint AND NOT (rb64_is_empty("videos"."tag_ids")))}
+      expect(query.to_sql).to must_be_like(query_sql)
+      query_sql = %{INNER JOIN "comments" ON ("tags"."comment_ids" @> "comments"."id"::int AND NOT (rb_is_empty("tags"."comment_ids")))}
+      expect(query.to_sql).to must_be_like(query_sql)
+      expect { query.load }.not_to raise_error
+    end
+
+    it 'can left join' do
+      query = Video.left_outer_joins(:tags)
+      query_sql = %{LEFT OUTER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::bigint AND NOT (rb64_is_empty("videos"."tag_ids")))}
+      expect(query.to_sql).to must_be_like(query_sql)
+    end
+
+    it 'merge w/join && query counting' do
+      relation = Video.all.merge!(select: "distinct videos.*",
+                         includes: [tags: :comments],
+                         references: :tags,
+                         where: "1=1", order: "videos.id")
+      query_count_eq(2) do
+        relation.to_a
+      end
+      query_sql = %{LEFT OUTER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::bigint AND NOT (rb64_is_empty("videos"."tag_ids")))}
       expect(relation.to_sql).to must_be_like(query_sql)
     end
   end
@@ -97,13 +149,13 @@ RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
 
       expect(subject.tags.size).to be_eql(2)
 
-      expect(subject.tags.first.id).to be_eql(new_tag.id)
+      expect(subject.tags.sort.first.id).to be_eql(new_tag.id)
 
       record = Video.create(title: 'B', tags: [new_tag])
       record.reload
 
       expect(record.tags.size).to be_eql(1)
-      expect(record.tags.first.id).to be_eql(new_tag.id)
+      expect(record.tags.sort.first.id).to be_eql(new_tag.id)
       expect(record.tag_ids).to be_eql([new_tag.id])
 
       new_tags = FactoryBot.create_list(:tag, 3)
@@ -167,7 +219,7 @@ RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
     it 'can return first n records' do
       records = FactoryBot.create_list(:tag, 10)
       subject.update(tag_ids: records.map(&:id))
-      ids = records.map(&:id).first(5)
+      ids = records.map(&:id).sort.first(5)
 
       expect(subject.tags).to respond_to(:take)
       records = subject.tags.take(5)
@@ -185,7 +237,7 @@ RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
       record.reload
 
       expect(record.tags.size).to be_eql(1)
-      expect(record.tags.first.id).to be_eql(initial.id)
+      expect(record.tags.sort.first.id).to be_eql(initial.id)
     end
 
     it 'can keep record changes accordingly' do
@@ -328,6 +380,7 @@ RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
       record.reload
 
       expect(record.tag_ids).to be_empty
+      expect(record.tag_ids).to be_a(Array)
       expect(record.tags.size).to be_eql(0)
     end
 
@@ -389,6 +442,7 @@ RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
 
       subject.tags.clear
       expect(subject.tags.size).to be_eql(0)
+      expect(subject.tag_ids).to be_a(Array)
     end
 
     it 'can reload records' do
@@ -398,13 +452,13 @@ RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
 
       subject.tags.reload
       expect(subject.tags.size).to be_eql(1)
-      expect(subject.tags.first.id).to be_eql(new_tag.id)
+      expect(subject.tags.sort.first.id).to be_eql(new_tag.id)
 
       record = Video.create(title: 'B', tags: [new_tag])
       record.reload
 
       expect(record.tags.size).to be_eql(1)
-      expect(record.tags.first.id).to be_eql(new_tag.id)
+      expect(record.tags.sort.first.id).to be_eql(new_tag.id)
     end
 
     it 'can preload records' do
@@ -414,8 +468,8 @@ RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
       entries = Video.all.includes(:tags).load
 
       expect(entries.size).to be_eql(1)
-      expect(entries.first.tags).to be_loaded
-      expect(entries.first.tags.size).to be_eql(5)
+      expect(entries.sort.first.tags).to be_loaded
+      expect(entries.sort.first.tags.size).to be_eql(5)
     end
 
     it 'can preload records using ActiveRecord::Associations::Preloader' do
@@ -427,8 +481,8 @@ RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
       entries = entries.load
 
       expect(entries.size).to be_eql(1)
-      expect(entries.first.tags).to be_loaded
-      expect(entries.first.tags.size).to be_eql(5)
+      expect(entries.sort.first.tags).to be_loaded
+      expect(entries.sort.first.tags.size).to be_eql(5)
     end
 
     it 'can joins records' do
@@ -474,28 +528,223 @@ RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
 
   context 'using roaringbitmap' do
     let(:connection) { ActiveRecord::Base.connection }
-    let(:other) { player.create }
-
-    class Player < ActiveRecord::Base
-      self.table_name = 'players'
-    end
-
-    class Game < ActiveRecord::Base
-      self.table_name = 'games'
-
-      options = { anonymous_class: Player, foreign_key: :player_ids }
-      options[:inverse_of] = false# if RoaringFkey::PostgreSQL::AR610
-      belongs_to_many :players, **options
-    end
 
     # TODO: Set as a shared example
     before do
-      connection.drop_table(:players) if connection.table_exists?(:players)
-      connection.drop_table(:games) if connection.table_exists?(:games)
+      connection.drop_table(:actors) if connection.table_exists?(:actors)
+      connection.drop_table(:movies) if connection.table_exists?(:movies)
 
-      connection.create_table(:players) { |t| t.string :name }
-      connection.create_table(:games) { |t| t.string :name; t.column :player_ids, :roaringbitmap } #, default: 'x3a3000000100000000000000100000000000' }
+      connection.create_table(:actors) { |t| t.string :name }
+      connection.create_table(:movies) { |t| t.string :name; t.column :actor_ids, :roaringbitmap }
+      connection.schema_cache.clear!
     end
+
+    class Actor < ActiveRecord::Base
+      self.table_name = 'actors'
+    end
+
+    class Movie < ActiveRecord::Base
+      self.table_name = 'movies'
+
+      options = { anonymous_class: Actor, foreign_key: :actor_ids }
+      options[:inverse_of] = false# if RoaringFkey::PostgreSQL::AR610
+      belongs_to_many :actors, **options
+    end
+
+    let!(:movies) { 5.times.map { Movie.create } }
+    let!(:actors) { 5.times.map { Actor.create(name: %w[Ace Bobby Leonard Doozer].sample) } }
+
+    it 'can Movie.first.actors =' do
+      movie = Movie.first
+      movie.actors = actors[0..1]
+      movie.save!
+      expect(Movie.find(movies[0].id).actors.sort.first).to be_eql(actors[0])
+      # Movie.find(movies[0].id)
+    end
+
+    # actor_ids << [1,3] FAIL
+    it 'can Movie.first.actor_ids << ' do
+      movie = Movie.second
+      # Tracer.on
+      movie.actor_ids << actors[2..3].map(&:id)
+      # Tracer.on
+      # Tracer.add_filter do |event, file, line, id, binding, klass, *rest|
+      #   #!%r[rubies|gems].match?(file)
+      #   %r[roaring-pg|roaringbitmap].match?(file)
+      # end
+      expect(movie.actors).to eq(actors[2..3])
+      movie.save!
+      # Tracer.off
+      # movie.update!(actor_ids: actors[2..3].map(&:id), name: 'new name')
+      # movie.save!
+      # Tracer.off
+      # binding.pry
+      expect(movie.reload.actors.last).to be_eql(actors[3])
+    end
+
+    it 'can Movie.find(movies[1].id).actors << ' do
+      # binding.pry
+      movie = Movie.find(movies[1].id)
+      movie.actors << actors[0..1]
+      movie.save!
+      expect(movie.reload.actors.last).to be_eql(actors[1])
+    end
+
+    it 'can Movie.find(movies[2].id).actors << ' do
+      movie = Movie.find(movies[1].id)
+      movie.actors << actors[-2]
+      movie.save!
+      expect(Movie.find(movies[1].id).actors.sort.first).to be_eql(actors[-2])
+    end
+
+    it 'can movie = Movie.second;movie.actors = actors[2..3] ' do
+      movie = Movie.second
+      movie.actors = actors[2..3]
+      movie.save!
+      expect(movie.reload.actors.sort.first).to be_eql(actors[2])
+    end
+
+    it 'can movie = Movie.second;movie.actor_ids = actors[2..3].map(&:id)' do
+      movie = Movie.second
+      movie.actor_ids = actors[2..3].map(&:id)
+      movie.save!
+      expect(movie.reload.actors.sort.first).to be_eql(actors[2])
+      expect(movie.reload.actors.count).to eq(2)
+    end
+
+    it 'can movie = Movie.create(actor_ids = actors[2..3].map(&:id))' do
+      movie = Movie.create!(actor_ids: actors[2..3].map(&:id))
+      expect(movie.reload.actors.sort.first).to be_eql(actors[2])
+      expect(movie.reload.actors.count).to eq(2)
+    end
+
+    it 'where(actor_ids:[2,4]) && where(actor_ids:2)- ret movie' do
+      # Tracer.on
+      ids = actors[2..3].map(&:id)
+      movie = Movie.create(actor_ids: ids)
+      expect(Movie.where(actor_ids: actors[2].id).take).to eq(movie)
+      expect(Movie.where(actor_ids: [actors[2].id]).take).to eq(movie)
+      expect(Movie.where(actor_ids: ids).take).to eq(movie)
+      # Tracer.off
+    end
+
+    it 'Movie.find_by(actor_ids:[2,4]) - ret movie' do
+      movie = Movie.create(actor_ids: actors[2..3].map(&:id))
+      expect(Movie.find_by(actor_ids: [actors[2].id])).to eq(movie)
+    end
+
+    it 'where.not(actor_ids:[2,4]) can movie = Movie.find_by(actor_ids: actors[2..3].map(&:id))' do
+      movie1 = Movie.create(actor_ids: [actors[1].id])
+      movie2 = Movie.create(actor_ids: actors[2..3].map(&:id))
+      expect(Movie.where(actor_ids: actors[2].id).take).to eq(movie2)
+      expect(Movie.find_by(actor_ids: [actors[2].id])).to eq(movie2)
+      # Tracer.on
+      expect(Movie.where.not(actor_ids: actors[2].id).take).to eq(movie1)
+      # Tracer.off
+    end
+
+    it 'where(actor_ids:[2,4]) can movie = Movie.find_by(actor_ids: actors[2..3].map(&:id))', :sql do
+      Movie.create(actor_ids: actors[2..3].map(&:id))
+      sql = Movie.where(actor_ids: actors[2].id).to_sql
+      expect(sql).to must_be_like(%{"movies"."actor_ids" @> #{actors[2].id}})
+      sql = Movie.where(actor_ids: actors[2..2].map(&:id)).to_sql
+      expect(sql).to match(/"movies"."actor_ids" @> #{actors[2].id}/i)
+      sql = Movie.where(actor_ids: [3]).to_sql
+      expect(sql).to match(/"movies"."actor_ids" @> 3/i)
+      sql = Movie.where.not(actor_ids: actors[2].id).to_sql
+      expect(sql).to must_be_like(%{NOT("movies"."actor_ids" @> #{actors[2].id})})
+    end
+
+    it 'None where.not(actor_ids: {some empty conditions})', :sql do
+      sql = Movie.where.not(actor_ids: Actor.none).to_sql
+      expect(sql).to must_be_like(%{NOT rb_is_empty("movies"."actor_ids")})
+      sql = Movie.where.not(actor_ids: nil).to_sql
+      expect(sql).to must_be_like(%{NOT rb_is_empty("movies"."actor_ids")})
+      sql = Movie.where.not(actor_ids: []).to_sql
+      expect(sql).to must_be_like(%{NOT rb_is_empty("movies"."actor_ids")})
+    end
+
+    it 'None where(actor_ids:[])', :sql do
+      sql = Movie.where(actor_ids: []).to_sql
+      expect(sql).to must_be_like(%{rb_is_empty("movies"."actor_ids")})
+    end
+
+    it 'can Movie.find(movies[2].id).actors << ' do
+      movie = Movie.first
+      movie.actors << actors[-1]
+      movie.save!
+      expect(movie.reload.actors.sort.first).to be_eql(actors[-1])
+      expect(movie.reload.actors.count).to be_eql(1)
+    end
+
+    # FixMe: actor_ids << [1,4] FAIL
+    # But: if
+    #   movie.actor_ids << [3,4]
+    #   movie.actors
+    #   movie.save!
+    #   OK - when save actors
+    it 'can join Movie.where(id: movies[1..2]).actor_ids << actors[-1]' do
+      movie = Movie.second
+      movie.actor_ids << actors[2..3].map(&:id)
+      expect(movie.actors.last).to be_eql(actors[3])
+      movie.save!
+      expect(movie.reload.actors.last).to be_eql(actors[3])
+    end
+
+    # ToDo: fix the previous_changes && saved_changes - its active model support - .changed etc
+    xit 'can assocs have previous_changes && saved_changes' do
+      movie = Movie.new
+      movie.name = 'Hello'
+      actor = Actor.new
+      movie.actors = [actor]
+      actor.name = 'foo'
+      
+      # 1 when neither movie nor actor are yet persisted and they have new
+      # info, movie.save updates both and previous_changes exist for both
+      movie.save
+      expect(movie.previous_changes.any?).to be false
+      expect(movie.actors.count).to eq 1
+      expect(movie.actors.sort.first.previous_changes.any?).to be_present #????
+
+      # 2 when you save movie with no changes previous_changes becomes empty
+      movie.save
+      expect(movie.previous_changes.any?).to be false # previous_changed == {}
+      expect(movie.actors.sort.first.previous_changes.any?).to be false #???? these are the same previous changes as before
+      
+      # 3 when movie and actor both have new information and you save 
+      # movie only movie is updated therefore the previous_changes the actor had in step one are still there
+      movie.name = 'Hello 2'
+      actor.name = 'bar'
+      expect(movie.changed?).to be true
+      expect(movie.changed).to eq ['name']
+      expect(movie.changes).to eq("name"=>['Hello', 'Hello 2'])
+      movie.name_changed?(from: 'Hello', to: 'Hello 2') # => true
+      movie.save
+      expect(movie.previous_changes.any?).to be_present
+      expect(movie.actors.sort.first.previous_changes["name"]).to be_blank # actor didn't get updated
+    end
+
+    it 'can join Movie.where(id: movies[1..2]).actor_ids << actors[-1]' do
+      movie = Movie.second
+      movie.actor_ids << actors[2..3].map(&:id)
+      expect(movie.actors).to eq(actors[2..3])
+      movie.save!
+      expect(movie.actors).to eq(actors[2..3])
+      expect(movie.reload.actors.last).to eq(actors[3])
+    end
+
+    it "should construct new finder sql after create" do
+      movie = Movie.new
+      expect(movie.actors.to_a).to(eq([]))
+      actor = Actor.create!(name: "clark-sydney")
+      movie.actors << actor
+      movie.save!
+      expect(movie.actors.find(actor.id)).to eq(actor)
+    end
+  end
+
+  context 'using roaringbitmap64' do
+    include_context 'bitmap Players in Games'
 
     let!(:games) { 5.times.map { Game.create } }
     let!(:players) { 5.times.map { Player.create(name: %w[Ace Bobby Leonard Doozer].sample) } }
@@ -504,27 +753,15 @@ RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
       game = Game.first
       game.players = players[0..1]
       game.save!
-      expect(Game.find(games[0].id).players.first).to be_eql(players[0])
-      # Game.find(games[0].id)
+      expect(Game.find(games[0].id).players.sort.first).to be_eql(players[0])
     end
 
     # player_ids << [1,3] FAIL
     it 'can Game.first.player_ids << ' do
       game = Game.second
-      # Tracer.on
       game.player_ids << players[2..3].map(&:id)
-      # Tracer.on
-      # Tracer.add_filter do |event, file, line, id, binding, klass, *rest|
-      #   #!%r[rubies|gems].match?(file)
-      #   %r[roaring-pg|roaringbitmap].match?(file)
-      # end
       expect(game.players).to eq(players[2..3])
       game.save!
-      # Tracer.off
-      # game.update!(player_ids: players[2..3].map(&:id), name: 'new name')
-      # game.save!
-      # Tracer.off
-      # binding.pry
       expect(game.reload.players.last).to be_eql(players[3])
     end
 
@@ -537,45 +774,42 @@ RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
     end
 
     it 'can Game.find(games[2].id).players << ' do
-      # expect(subject.tags.first.id).to be_eql(new_tag.id)
       game = Game.find(games[1].id)
       game.players << players[-2]
       game.save!
-      expect(Game.find(games[1].id).players.first).to be_eql(players[-2])
+      expect(Game.find(games[1].id).players.sort.first).to be_eql(players[-2])
     end
 
     it 'can game = Game.second;game.players = players[2..3] ' do
       game = Game.second
       game.players = players[2..3]
       game.save!
-      # expect(game.players.first).to be_eql(players[2]) #=>fail FROM "players" WHERE "players"."id" IN ('{3,4}')
-      expect(game.reload.players.first).to be_eql(players[2])
+      expect(game.players.sort.first).to be_eql(players[2]) #=>fail FROM "players" WHERE "players"."id" IN ('{3,4}')
+      expect(game.reload.players.sort.first).to be_eql(players[2])
     end
 
     it 'can game = Game.second;game.player_ids = players[2..3].map(&:id)' do
       game = Game.second
       game.player_ids = players[2..3].map(&:id)
       game.save!
-      # expect(game.players.first).to be_eql(players[2]) #=>fail FROM "players" WHERE "players"."id" IN ('{3,4}')
-      expect(game.reload.players.first).to be_eql(players[2])
+      expect(game.players.sort.first).to be_eql(players[2]) #=>fail FROM "players" WHERE "players"."id" IN ('{3,4}')
+      expect(game.reload.players.sort.first).to be_eql(players[2])
       expect(game.reload.players.count).to eq(2)
     end
 
     it 'can game = Game.create(player_ids = players[2..3].map(&:id))' do
       game = Game.create!(player_ids: players[2..3].map(&:id))
-      # expect(game.players.first).to be_eql(players[2]) #=>fail FROM "players" WHERE "players"."id" IN ('{3,4}')
-      expect(game.reload.players.first).to be_eql(players[2])
+      expect(game.players.sort.first).to be_eql(players[2]) #=>fail FROM "players" WHERE "players"."id" IN ('{3,4}')
+      expect(game.reload.players.sort.first).to be_eql(players[2])
       expect(game.reload.players.count).to eq(2)
     end
 
     it 'where(player_ids:[2,4]) && where(player_ids:2)- ret game' do
-      # Tracer.on
       ids = players[2..3].map(&:id)
       game = Game.create(player_ids: ids)
       expect(Game.where(player_ids: players[2].id).take).to eq(game)
       expect(Game.where(player_ids: [players[2].id]).take).to eq(game)
       expect(Game.where(player_ids: ids).take).to eq(game)
-      # Tracer.off
     end
 
     it 'Game.find_by(player_ids:[2,4]) - ret game' do
@@ -588,9 +822,7 @@ RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
       game2 = Game.create(player_ids: players[2..3].map(&:id))
       expect(Game.where(player_ids: players[2].id).take).to eq(game2)
       expect(Game.find_by(player_ids: [players[2].id])).to eq(game2)
-      # Tracer.on
       expect(Game.where.not(player_ids: players[2].id).take).to eq(game1)
-      # Tracer.off
     end
 
     it 'where(player_ids:[2,4]) can game = Game.find_by(player_ids: players[2..3].map(&:id))', :sql do
@@ -607,23 +839,23 @@ RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
 
     it 'None where.not(player_ids: {some empty conditions})', :sql do
       sql = Game.where.not(player_ids: Player.none).to_sql
-      expect(sql).to must_be_like(%{NOT rb_is_empty("games"."player_ids")})
+      expect(sql).to must_be_like(%{NOT rb64_is_empty("games"."player_ids")})
       sql = Game.where.not(player_ids: nil).to_sql
-      expect(sql).to must_be_like(%{NOT rb_is_empty("games"."player_ids")})
+      expect(sql).to must_be_like(%{NOT rb64_is_empty("games"."player_ids")})
       sql = Game.where.not(player_ids: []).to_sql
-      expect(sql).to must_be_like(%{NOT rb_is_empty("games"."player_ids")})
+      expect(sql).to must_be_like(%{NOT rb64_is_empty("games"."player_ids")})
     end
 
     it 'None where(player_ids:[])', :sql do
       sql = Game.where(player_ids: []).to_sql
-      expect(sql).to must_be_like(%{rb_is_empty("games"."player_ids")})
+      expect(sql).to must_be_like(%{rb64_is_empty("games"."player_ids")})
     end
 
     it 'can Game.find(games[2].id).players << ' do
       game = Game.first
       game.players << players[-1]
       game.save!
-      expect(game.reload.players.first).to be_eql(players[-1])
+      expect(game.reload.players.sort.first).to be_eql(players[-1])
       expect(game.reload.players.count).to be_eql(1)
     end
 
@@ -647,20 +879,20 @@ RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
       player = Player.new
       game.players = [player]
       player.name = 'foo'
-      
+
       # 1 when neither game nor player are yet persisted and they have new
       # info, game.save updates both and previous_changes exist for both
       game.save
       expect(game.previous_changes.any?).to be false
       expect(game.players.count).to eq 1
-      expect(game.players.first.previous_changes.any?).to be_present #????
+      expect(game.players.sort.first.previous_changes.any?).to be_present #????
 
       # 2 when you save game with no changes previous_changes becomes empty
       game.save
       expect(game.previous_changes.any?).to be false # previous_changed == {}
-      expect(game.players.first.previous_changes.any?).to be false #???? these are the same previous changes as before
-      
-      # 3 when game and player both have new information and you save 
+      expect(game.players.sort.first.previous_changes.any?).to be false #???? these are the same previous changes as before
+
+      # 3 when game and player both have new information and you save
       # game only game is updated therefore the previous_changes the player had in step one are still there
       game.name = 'Hello 2'
       player.name = 'bar'
@@ -670,7 +902,7 @@ RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
       game.name_changed?(from: 'Hello', to: 'Hello 2') # => true
       game.save
       expect(game.previous_changes.any?).to be_present
-      expect(game.players.first.previous_changes["name"]).to be_blank # player didn't get updated
+      expect(game.players.sort.first.previous_changes["name"]).to be_blank # player didn't get updated
     end
 
     it 'can join Game.where(id: games[1..2]).player_ids << players[-1]' do

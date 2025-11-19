@@ -172,6 +172,9 @@ module RoaringFkey
         #   belongs_to_many :tags, required: true, touch: true
         #   belongs_to_many :tags, default: -> { Tag.default }
         def belongs_to_many(name, scope = nil, **options, &extension)
+          # binding.pry
+          # options[:primary_key_type] = columns.first.sql_type
+
           klass = Associations::Builder::BelongsToMany
           reflection = klass.build(self, name, scope, options, &extension)
           ::ActiveRecord::Reflection.add_reflection(self, name, reflection)

@@ -4,45 +4,91 @@ require "acceptance_helper"
 require "generators/roaring_fkey/install/install_generator"
 
 describe "RoaringFkey migrations" do
-  describe "#install" do
-    let(:roaring_fkey_command) do
-      "ActiveRecord::Base.connection.execute %q{SELECT 5::bigint = ARRAY[5]}"
-    end
-
-    include_context "cleanup migrations"
-
-    before do
-      Dir.chdir("#{File.dirname(__FILE__)}/../dummy") do
-        successfully "rake db:migrate"
+  context 'roaringbitmap' do
+    describe "#install" do
+      let(:roaring_fkey_command) do
+        "ActiveRecord::Base.connection.execute %q{SELECT roaring_fkey_bitmap_count(8::int, rb_build(ARRAY[1]))}"
       end
-      allow_any_instance_of(RoaringFkey::Generators::InstallGenerator).to receive(:installed_recent_version?).and_return(false)
-    end
 
-    after(:all) do
-      Dir.chdir("#{File.dirname(__FILE__)}/../dummy") do
+      include_context "cleanup migrations"
+
+      before do
+        Dir.chdir("#{File.dirname(__FILE__)}/../dummy") do
+          successfully "rake db:migrate"
+        end
+        allow_any_instance_of(RoaringFkey::Generators::InstallGenerator).to receive(:installed_recent_version?).and_return(false)
+      end
+
+      after(:all) do
+        Dir.chdir("#{File.dirname(__FILE__)}/../dummy") do
+          successfully "rake db:migrate"
+        end
+      end
+
+      it "rollbacks" do
+        successfully "rails generate roaring_fkey:install"
         successfully "rake db:migrate"
+        successfully %(
+          rails runner "#{roaring_fkey_command}"
+        )
+        successfully "rake db:rollback"
+        unsuccessfully %(
+          rails runner "#{roaring_fkey_command}"
+        )
+      end
+
+      it "creates update migration" do
+        successfully "rails generate roaring_fkey:install"
+        successfully "rake db:migrate"
+        successfully %(
+          rails runner "#{roaring_fkey_command}"
+        )
+        successfully "rake db:rollback"
       end
     end
+  end
 
-    it "rollbacks" do
-      successfully "rails generate roaring_fkey:install"
-      successfully "rake db:migrate"
-      successfully %(
-        rails runner "#{roaring_fkey_command}"
-      )
-      successfully "rake db:rollback"
-      unsuccessfully %(
-        rails runner "#{roaring_fkey_command}"
-      )
-    end
+  context 'roaringbitmap64' do
+    describe "#install" do
+      let(:roaring_fkey_command) do
+        "ActiveRecord::Base.connection.execute %q{SELECT roaring_fkey_bitmap64_count(8::bigint, rb64_build(ARRAY[1::bigint]))}"
+      end
 
-    it "creates update migration" do
-      successfully "rails generate roaring_fkey:install"
-      successfully "rake db:migrate"
-      successfully %(
-        rails runner "#{roaring_fkey_command}"
-      )
-      successfully "rake db:rollback"
+      include_context "cleanup migrations"
+
+      before do
+        Dir.chdir("#{File.dirname(__FILE__)}/../dummy") do
+          successfully "rake db:migrate"
+        end
+        allow_any_instance_of(RoaringFkey::Generators::InstallGenerator).to receive(:installed_recent_version?).and_return(false)
+      end
+
+      after(:all) do
+        Dir.chdir("#{File.dirname(__FILE__)}/../dummy") do
+          successfully "rake db:migrate"
+        end
+      end
+
+      it "rollbacks" do
+        successfully "rails generate roaring_fkey:install"
+        successfully "rake db:migrate"
+        successfully %(
+          rails runner "#{roaring_fkey_command}"
+        )
+        successfully "rake db:rollback"
+        unsuccessfully %(
+          rails runner "#{roaring_fkey_command}"
+        )
+      end
+
+      it "creates update migration" do
+        successfully "rails generate roaring_fkey:install"
+        successfully "rake db:migrate"
+        successfully %(
+          rails runner "#{roaring_fkey_command}"
+        )
+        successfully "rake db:rollback"
+      end
     end
   end
 

@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 require 'pry'
 require 'roaring_fkey/postgresql/adapter/oid/roaringbitmap'
+require 'roaring_fkey/postgresql/adapter/oid/roaringbitmap64'
 
 module RoaringFkey
   module PostgreSQL
     module Arel
       module Visitors
         RoaringbitmapType = ::ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Roaringbitmap
+        Roaringbitmap64Type = ::ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Roaringbitmap64
 
         # Enclose select manager with parenthesis
         # :TODO: Remove when checking the new version of Arel
@@ -35,16 +37,19 @@ module RoaringFkey
         end
 
         def visit_Arel_Nodes_HomogeneousIn(o, collector)
-          return super unless o.attribute.type_caster.type.eql?(:roaringbitmap)
+          return super unless o.attribute.type_caster.type.eql?(:roaringbitmap) ||
+              o.attribute.type_caster.type.eql?(:roaringbitmap64)
 
           collector.preparable = false
 
           collector << quote_table_name(o.table_name) << "." << quote_column_name(o.column_name)
 
+          build_function = build_function_for_type(o.attribute.type_caster.type)
+
           if o.type == :in
-            collector << " && rb_build(ARRAY["
+            collector << " && #{build_function}(ARRAY["
           else # wat?
-            collector << " - rb_build(ARRAY["
+            collector << " - #{build_function}(ARRAY["
           end
 
           values = o.values
@@ -61,12 +66,12 @@ module RoaringFkey
 
         def visit_Arel_Nodes_Equality(o, collector)
           if o.right.respond_to?(:value) &&
-              o.left.type_caster.type.eql?(:roaringbitmap) &&
-              o.right.value.type.is_a?(RoaringbitmapType)
+              %i[roaringbitmap roaringbitmap64].include?(o.left.type_caster.type) &&
+              [RoaringbitmapType, Roaringbitmap64Type].include?(o.right.value.type.class)
             if o.right.value.value.is_a?(Array)
               collector = visit o.left, collector
               collector << " && "
-              quote_roaringbiymap(o.right.value.value, collector)
+              quote_roaringbiymap(o.right.value.value, collector, o.left.type_caster.type)
             elsif o.right.value.value.is_a?(::ActiveRecord::StatementCache::Substitute)
               super
             else
@@ -80,7 +85,8 @@ module RoaringFkey
         end
 
         def visit_Arel_Nodes_In(o, collector)
-          return super unless o.left.type_caster.type.eql?(:roaringbitmap)
+          return super unless %i[roaringbitmap roaringbitmap64].include?(o.left.type_caster.type)
+
           collector.preparable = false
           attr, values = o.left, o.right
 
@@ -90,7 +96,7 @@ module RoaringFkey
             end
 
             if values.empty?
-              collector << " rb_is_empty("
+              collector << " #{empty_func(o.left.type_caster.type)}("
               visit(o.left, collector) << ")"
               return collector
             end
@@ -101,7 +107,7 @@ module RoaringFkey
         end
 
         def visit_Arel_Nodes_NotIn(o, collector)
-          return super unless o.left.type_caster.type.eql?(:roaringbitmap)
+          return super unless %i[roaringbitmap roaringbitmap64].include?(o.left.type_caster.type)
 
           collector.preparable = false
           attr, values = o.left, o.right
@@ -112,12 +118,12 @@ module RoaringFkey
             end
 
             if values.blank?
-              collector << "NOT rb_is_empty("
+              collector << "NOT #{empty_func(o.left.type_caster.type)}("
               visit(o.left, collector) << ")"
               return collector
             end
           else
-            collector << "NOT rb_is_empty("
+            collector << "NOT #{empty_func(o.left.type_caster.type)}("
             visit(o.left, collector) << ")"
             return collector
           end
@@ -127,49 +133,72 @@ module RoaringFkey
         end
 
         def visit_Arel_Nodes_NotEqual(o, collector)
-          return super if !o.right.value.type.is_a?(RoaringbitmapType) &&
-            !o.left.value.type.is_a?(RoaringbitmapType)
-
+          left = o.left
           right = o.right
-
-          if right.nil? || right.value.nil?
-            if right.value.value
-              collector << "NOT rb_is_empty("
-              visit(right.value.value, collector) << ")"
+          if [RoaringbitmapType, Roaringbitmap64Type].include?(right.value.type.class) &&
+              %i[roaringbitmap roaringbitmap64].include?(left.type_caster.type)
+            if right.nil? || right.value.nil?
+              if right.value.value
+                collector << "NOT #{empty_func(right.value.value.type.class)}("
+                visit(right.value.value, collector) << ")"
+              else
+                collector << "NOT #{empty_func(left.type_caster.type)}("
+                visit(left, collector) << ")"
+              end
+            elsif right.is_a?(Array)
+              build_function = build_function_for_type(left.type_caster.type)
+              collector << "NOT("
+              collector = visit(left, collector)
+              collector << " @> #{build_function}(ARRAY["
+              collector << right.value.value.join(',') << "]))"
             else
-              collector << "NOT rb_is_empty("
-              visit(o.left, collector) << ")"
+              collector << "NOT("
+              collector = visit(left, collector)
+              collector << " @> "
+              collector << right.value.value.to_s << ")"
             end
-          elsif right.is_a?(Array)
-            collector << "NOT("
-            collector = visit(o.left, collector)
-            collector << " @> rb_build(ARRAY["
-            collector << right.value.value.join(',') << "]))"
           else
-            collector << "NOT("
-            collector = visit(o.left, collector)
-            collector << " @> "
-            collector << right.value.value.to_s << ")"
+            super
           end
         end
 
         private
 
-          def quote_array(value, collector)
-            value = value.map(&::Arel::Nodes.method(:build_quoted))
+        def quote_array(value, collector)
+          value = value.map(&::Arel::Nodes.method(:build_quoted))
 
-            collector << 'ARRAY['
-            visit_Array(value, collector)
-            collector << ']'
+          collector << 'ARRAY['
+          visit_Array(value, collector)
+          collector << ']'
+        end
+
+        def quote_roaringbiymap(value, collector, type = :roaringbitmap)
+          value = value.map(&::Arel::Nodes.method(:build_quoted))
+
+          build_function = build_function_for_type(type)
+          collector << "#{build_function}(ARRAY['"
+          visit_Array(value, collector)
+          collector << '])'
+        end
+
+        def build_function_for_type(type)
+          case type
+          when :roaringbitmap
+            'rb_build'
+          when :roaringbitmap64
+            'rb64_build'
+          else
+            raise "Unsupported type: #{type}"
           end
+        end
 
-          def quote_roaringbiymap(value, collector)
-            value = value.map(&::Arel::Nodes.method(:build_quoted))
-
-            collector << 'rb_build(ARRAY['
-            visit_Array(value, collector)
-            collector << '])'
+        def empty_func(arg_type)
+          if arg_type == :roaringbitmap64 || arg_type.class == Roaringbitmap64Type
+            'rb64_is_empty'
+          else
+            'rb_is_empty'
           end
+        end
       end
 
       ::Arel::Visitors::PostgreSQL.prepend(Visitors)

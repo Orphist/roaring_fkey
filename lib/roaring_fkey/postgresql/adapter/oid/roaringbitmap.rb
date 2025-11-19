@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module Casting
-
   def cast_to_array(value)
     return value if value.is_a?(Array)
 
@@ -142,8 +141,10 @@ module ActiveRecord
               cast_to_array(value)
             when ::Array
               cast_to_array(value)
+            when ::Numeric
+              value
             else
-              raise NotImplementedError, "cast(value):Don't know how to cast #{value.class} #{value.inspect} into Roaringbitmap"
+              raise NotImplementedError, "deserialize(value):Don't know how to cast #{value.class} #{value.inspect} into Roaringbitmap"
             end
           end
 
@@ -226,7 +227,7 @@ module ActiveRecord
     module PostgreSQL
       module ColumnMethods
         def roaringbitmap(name, options = {})
-          column(name, :roaringbitmap, **{ default: '\x3a3000000100000000000000100000000000' }.merge(options))
+          column(name, :roaringbitmap, **{ default: "'{}'::roaringbitmap" }.merge(options))
         end
       end
     end
