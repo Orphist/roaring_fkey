@@ -50,6 +50,9 @@ require "acceptance_helper"
 
 I18n.load_path << Pathname.pwd.join('spec', 'roaring_fkey', 'en.yml')
 
+ActiveRecord::Base.logger = Logger.new(STDOUT)
+ActiveRecord::Base.logger.level = Logger::DEBUG
+
 RSpec.configure do |config|
   config.extend Mocks::CreateTable
   config.include Mocks::CacheQuery

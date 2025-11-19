@@ -67,7 +67,7 @@ module RoaringFkey
         def visit_Arel_Nodes_Equality(o, collector)
           if o.right.respond_to?(:value) &&
               %i[roaringbitmap roaringbitmap64].include?(o.left.type_caster.type) &&
-              [RoaringbitmapType, Roaringbitmap64Type].include?(o.right.value.type)
+              [RoaringbitmapType, Roaringbitmap64Type].include?(o.right.value.type.class)
             if o.right.value.value.is_a?(Array)
               collector = visit o.left, collector
               collector << " && "
@@ -135,11 +135,11 @@ module RoaringFkey
         def visit_Arel_Nodes_NotEqual(o, collector)
           left = o.left
           right = o.right
-          if [RoaringbitmapType, Roaringbitmap64Type].include?(right.value.type) &&
-              [RoaringbitmapType, Roaringbitmap64Type].include?(left.value.type)
+          if [RoaringbitmapType, Roaringbitmap64Type].include?(right.value.type.class) &&
+              %i[roaringbitmap roaringbitmap64].include?(left.type_caster.type)
             if right.nil? || right.value.nil?
               if right.value.value
-                collector << "NOT #{empty_func(right.value.value.type)}("
+                collector << "NOT #{empty_func(right.value.value.type.class)}("
                 visit(right.value.value, collector) << ")"
               else
                 collector << "NOT #{empty_func(left.type_caster.type)}("
@@ -193,7 +193,7 @@ module RoaringFkey
         end
 
         def empty_func(arg_type)
-          if arg_type == :roaringbitmap64 || arg_type == Roaringbitmap64Type
+          if arg_type == :roaringbitmap64 || arg_type.class == Roaringbitmap64Type
             'rb64_is_empty'
           else
             'rb_is_empty'

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Casting
+module Casting64
 
   def cast_to_array(value)
     return value if value.is_a?(Array)
@@ -47,14 +47,14 @@ module ActiveRecord
     module PostgreSQL
       module OID
         class Roaringbitmap64 < ActiveModel::Type::Value
-          include Casting
+          include Casting64
 
           def type
             :roaringbitmap64
           end
 
           class Datata #< ::Roaring::Bitmap
-            include Casting
+            include Casting64
 
             def initialize(value)
               @value = value

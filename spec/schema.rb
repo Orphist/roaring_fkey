@@ -10,8 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-version = 1
-# binding.pry
+version = 4
 
 return if ActiveRecord::Migrator.current_version == version
 ActiveRecord::Schema.define(version: version) do
@@ -29,7 +28,7 @@ ActiveRecord::Schema.define(version: version) do
 
   create_table "tags", force: :cascade do |t|
     t.string "name"
-    t.roaringbitmap64 "comment_ids"
+    t.roaringbitmap "comment_ids"
   end
 
   create_table "videos", force: :cascade do |t|
@@ -42,21 +41,21 @@ ActiveRecord::Schema.define(version: version) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "comments", force: :cascade do |t|
+  create_table "comments", id: :int, force: :cascade do |t|
     t.string   "title"
   end
 
   create_table "authors", force: :cascade do |t|
     t.string   "name"
     t.string   "type"
-    t.integer     "specialty"#, enum_type: :specialties
+    t.integer  "specialty"#, enum_type: :specialties
   end
 
   create_table "activities", force: :cascade do |t|
     t.integer  "author_id"
     t.string   "title"
     t.boolean  "active"
-    t.integer     "kind"#,                    enum_type: :types
+    t.integer  "kind"#,                    enum_type: :types
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

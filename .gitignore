@@ -6,3 +6,4 @@
 .env
 bench.md
 /ai/
+/vendor/

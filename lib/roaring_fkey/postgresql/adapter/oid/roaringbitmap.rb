@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module Casting
-
   def cast_to_array(value)
     return value if value.is_a?(Array)
 

@@ -30,14 +30,14 @@ RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
 
     it 'can joins records' do
       query = Video.all.joins(:tags)
-      query_sql = %{INNER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::int AND NOT (rb_is_empty("videos"."tag_ids")))}
+      query_sql = %{INNER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::bigint AND NOT (rb64_is_empty("videos"."tag_ids")))}
       expect(query.to_sql).to must_be_like(query_sql)
       expect { query.load }.not_to raise_error
     end
 
     it 'can joins reference' do
       query = Video.includes(tags: :comments).references(:tags).where("tags.id is not null")
-      query_sql = %{LEFT OUTER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::int AND NOT (rb_is_empty("videos"."tag_ids")))}
+      query_sql = %{LEFT OUTER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::bigint AND NOT (rb64_is_empty("videos"."tag_ids")))}
       expect(query.to_sql).to must_be_like(query_sql)
       query_sql = %{LEFT OUTER JOIN "comments" ON ("tags"."comment_ids" @> "comments"."id"::int AND NOT (rb_is_empty("tags"."comment_ids")))}
       expect(query.to_sql).to must_be_like(query_sql)
@@ -46,7 +46,7 @@ RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
 
     it 'can 2 joins' do
       query = Video.joins(tags: :comments).where("tags.id is not null").select('comments.*')
-      query_sql = %{INNER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::int AND NOT (rb_is_empty("videos"."tag_ids")))}
+      query_sql = %{INNER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::bigint AND NOT (rb64_is_empty("videos"."tag_ids")))}
       expect(query.to_sql).to must_be_like(query_sql)
       query_sql = %{INNER JOIN "comments" ON ("tags"."comment_ids" @> "comments"."id"::int AND NOT (rb_is_empty("tags"."comment_ids")))}
       expect(query.to_sql).to must_be_like(query_sql)
@@ -55,7 +55,7 @@ RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
 
     it 'can left join' do
       query = Video.left_outer_joins(:tags)
-      query_sql = %{LEFT OUTER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::int AND NOT (rb_is_empty("videos"."tag_ids")))}
+      query_sql = %{LEFT OUTER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::bigint AND NOT (rb64_is_empty("videos"."tag_ids")))}
       expect(query.to_sql).to must_be_like(query_sql)
     end
     
@@ -67,7 +67,7 @@ RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
       query_count_eq(2) do
         relation.to_a
       end
-      query_sql = %{LEFT OUTER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::int AND NOT (rb_is_empty("videos"."tag_ids")))}
+      query_sql = %{LEFT OUTER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::bigint AND NOT (rb64_is_empty("videos"."tag_ids")))}
       expect(relation.to_sql).to must_be_like(query_sql)
     end
   end
@@ -80,32 +80,32 @@ RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
 
     it 'can joins records' do
       query = Video.all.joins(:tags)
-      query_sql = %{INNER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::int AND NOT (rb64_is_empty("videos"."tag_ids")))}
+      query_sql = %{INNER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::bigint AND NOT (rb64_is_empty("videos"."tag_ids")))}
       expect(query.to_sql).to must_be_like(query_sql)
       expect { query.load }.not_to raise_error
     end
 
     it 'can joins reference' do
       query = Video.includes(tags: :comments).references(:tags).where("tags.id is not null")
-      query_sql = %{LEFT OUTER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::int AND NOT (rb64_is_empty("videos"."tag_ids")))}
+      query_sql = %{LEFT OUTER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::bigint AND NOT (rb64_is_empty("videos"."tag_ids")))}
       expect(query.to_sql).to must_be_like(query_sql)
-      query_sql = %{LEFT OUTER JOIN "comments" ON ("tags"."comment_ids" @> "comments"."id"::int AND NOT (rb64_is_empty("tags"."comment_ids")))}
+      query_sql = %{LEFT OUTER JOIN "comments" ON ("tags"."comment_ids" @> "comments"."id"::int AND NOT (rb_is_empty("tags"."comment_ids")))}
       expect(query.to_sql).to must_be_like(query_sql)
       expect { query.load }.not_to raise_error
     end
 
     it 'can 2 joins' do
       query = Video.joins(tags: :comments).where("tags.id is not null").select('comments.*')
-      query_sql = %{INNER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::int AND NOT (rb64_is_empty("videos"."tag_ids")))}
+      query_sql = %{INNER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::bigint AND NOT (rb64_is_empty("videos"."tag_ids")))}
       expect(query.to_sql).to must_be_like(query_sql)
-      query_sql = %{INNER JOIN "comments" ON ("tags"."comment_ids" @> "comments"."id"::int AND NOT (rb64_is_empty("tags"."comment_ids")))}
+      query_sql = %{INNER JOIN "comments" ON ("tags"."comment_ids" @> "comments"."id"::int AND NOT (rb_is_empty("tags"."comment_ids")))}
       expect(query.to_sql).to must_be_like(query_sql)
       expect { query.load }.not_to raise_error
     end
 
     it 'can left join' do
       query = Video.left_outer_joins(:tags)
-      query_sql = %{LEFT OUTER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::int AND NOT (rb64_is_empty("videos"."tag_ids")))}
+      query_sql = %{LEFT OUTER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::bigint AND NOT (rb64_is_empty("videos"."tag_ids")))}
       expect(query.to_sql).to must_be_like(query_sql)
     end
 
@@ -117,7 +117,7 @@ RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
       query_count_eq(2) do
         relation.to_a
       end
-      query_sql = %{LEFT OUTER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::int AND NOT (rb64_is_empty("videos"."tag_ids")))}
+      query_sql = %{LEFT OUTER JOIN "tags" ON ("videos"."tag_ids" @> "tags"."id"::bigint AND NOT (rb64_is_empty("videos"."tag_ids")))}
       expect(relation.to_sql).to must_be_like(query_sql)
     end
   end
@@ -524,7 +524,16 @@ RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
 
   context 'using roaringbitmap' do
     let(:connection) { ActiveRecord::Base.connection }
-    let(:other) { player.create }
+
+    # TODO: Set as a shared example
+    before do
+      connection.drop_table(:players) if connection.table_exists?(:players)
+      connection.drop_table(:games) if connection.table_exists?(:games)
+
+      connection.create_table(:players) { |t| t.string :name }
+      connection.create_table(:games) { |t| t.string :name; t.column :player_ids, :roaringbitmap }
+      connection.schema_cache.clear!
+    end
 
     class Player < ActiveRecord::Base
       self.table_name = 'players'
@@ -536,15 +545,6 @@ RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
       options = { anonymous_class: Player, foreign_key: :player_ids }
       options[:inverse_of] = false# if RoaringFkey::PostgreSQL::AR610
       belongs_to_many :players, **options
-    end
-
-    # TODO: Set as a shared example
-    before do
-      connection.drop_table(:players) if connection.table_exists?(:players)
-      connection.drop_table(:games) if connection.table_exists?(:games)
-
-      connection.create_table(:players) { |t| t.string :name }
-      connection.create_table(:games) { |t| t.string :name; t.column :player_ids, :roaringbitmap } #, default: 'x3a3000000100000000000000100000000000' }
     end
 
     let!(:games) { 5.times.map { Game.create } }
@@ -744,7 +744,15 @@ RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
 
   context 'using roaringbitmap64' do
     let(:connection) { ActiveRecord::Base.connection }
-    let(:other) { player.create }
+
+    # TODO: Set as a shared example
+    before do
+      connection.drop_table(:players) if connection.table_exists?(:players)
+      connection.drop_table(:games) if connection.table_exists?(:games)
+
+      connection.create_table(:players) { |t| t.string :name }
+      connection.create_table(:games) { |t| t.string :name; t.column :player_ids, :roaringbitmap64 }
+    end
 
     class Player < ActiveRecord::Base
       self.table_name = 'players'
@@ -756,15 +764,6 @@ RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
       options = { anonymous_class: Player, foreign_key: :player_ids }
       options[:inverse_of] = false# if RoaringFkey::PostgreSQL::AR610
       belongs_to_many :players, **options
-    end
-
-    # TODO: Set as a shared example
-    before do
-      connection.drop_table(:players) if connection.table_exists?(:players)
-      connection.drop_table(:games) if connection.table_exists?(:games)
-
-      connection.create_table(:players) { |t| t.string :name }
-      connection.create_table(:games) { |t| t.string :name; t.column :player_ids, :roaringbitmap64 }
     end
 
     let!(:games) { 5.times.map { Game.create } }
@@ -889,7 +888,7 @@ RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
 
     it 'None where(player_ids:[])', :sql do
       sql = Game.where(player_ids: []).to_sql
-      expect(sql).to must_be_like(%{rb_is_empty("games"."player_ids")})
+      expect(sql).to must_be_like(%{rb64_is_empty("games"."player_ids")})
     end
 
     it 'can Game.find(games[2].id).players << ' do
