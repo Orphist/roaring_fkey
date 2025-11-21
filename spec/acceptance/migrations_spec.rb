@@ -4,7 +4,7 @@ require "acceptance_helper"
 require "generators/roaring_fkey/install/install_generator"
 
 describe "RoaringFkey migrations" do
-  context 'roaringbitmap'
+  context 'roaringbitmap' do
     describe "#install" do
       let(:roaring_fkey_command) do
         "ActiveRecord::Base.connection.execute %q{SELECT roaring_fkey_bitmap_count(8::int, rb_build(ARRAY[1]))}"
@@ -48,7 +48,7 @@ describe "RoaringFkey migrations" do
     end
   end
 
-  context 'roaringbitmap64'
+  context 'roaringbitmap64' do
     describe "#install" do
       let(:roaring_fkey_command) do
         "ActiveRecord::Base.connection.execute %q{SELECT roaring_fkey_bitmap64_count(8::bigint, rb64_build(ARRAY[1::bigint]))}"

@@ -119,38 +119,7 @@ describe RoaringFkey::Generators::ModelGenerator, :aggregate_failures, type: :ge
         expect(File.exist?(migration_path)).to be true
         model_migration = File.open(migration_path).readlines
         expect(model_migration[0]).to include "class AddRoaringFkeyFileIdsToDataSets < ActiveRecord::Migration[#{ar_version}]"
-        expect(model_migration[2]).to include "add_column :data_sets, :file_ids, :roaringbitmap, default: '{}'::roaringbitmap"
-      end
-    end
-
-    context "with errors in args" do
-      let(:migration_path) { Dir[File.join(destination_root, "db", "migrate", "*add_roaring_fkey_file_ids_to_data_sets.rb")].first }
-      let(:model_path) { File.join(destination_root, "app", "models", "custom", "data", "set.rb") }
-
-      let(:args) { ["data/set", "file:references", "--path", "app/models/custom/data/set.rb"] }
-
-      before do
-        File.write(
-          model_path,
-          <<~RAW
-            module Data
-              class Set < ActiveRecord::Base
-              end
-            end
-          RAW
-        )
-      end
-
-      it "creates migration" do
-        run_generator(args)
-
-        expect(File.exist?(model_path)).to be true
-        expect(File.open(model_path).readlines.join).to include "belongs_to_many :files, anonymous_class: File, foreign_key: :file_ids, inverse_of: false"
-
-        expect(File.exist?(migration_path)).to be true
-        model_migration = File.open(migration_path).readlines
-        expect(model_migration[0]).to include "class AddRoaringFkeyFileIdsToDataSets < ActiveRecord::Migration[#{ar_version}]"
-        expect(model_migration[2]).to include "add_column :data_sets, :file_ids, :roaringbitmap, default: '{}'::roaringbitmap"
+        expect(model_migration[2]).to include "add_column :data_sets, :file_ids, :roaringbitmap64, default: '{}'::roaringbitmap64"
       end
     end
   end

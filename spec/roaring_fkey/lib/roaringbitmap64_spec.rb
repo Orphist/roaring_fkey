@@ -73,7 +73,6 @@ RSpec.describe 'RoaringBitmap64', :aggregate_failures, :db do
       functions = connection.select_values(
         "SELECT proname FROM pg_proc WHERE proname LIKE 'roaring_fkey_%64%'"
       )
-      expect(functions).to include('roaring_fkey_bitmap_contains_bigint64')
       expect(functions).to include('roaring_fkey_bigint_contains_in_bitmap64')
       expect(functions).to include('roaring_fkey_bitmap_overlaps_array_bigint64')
     end

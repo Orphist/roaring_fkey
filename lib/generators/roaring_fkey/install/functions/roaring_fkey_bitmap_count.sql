@@ -1,13 +1,13 @@
 do $pl$
 begin
 
-  CREATE FUNCTION roaringbitmap_count(integer, roaringbitmap)
+  CREATE FUNCTION roaring_fkey_bitmap_count(integer, roaringbitmap)
   returns int language sql immutable as $$
     SELECT $1+rb_cardinality($2)
   $$;
 
   CREATE aggregate count (roaringbitmap) (
-      sfunc = roaringbitmap_count,
+      sfunc = roaring_fkey_bitmap_count,
       stype = integer,
       initcond = 0
   );

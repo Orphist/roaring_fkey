@@ -743,28 +743,7 @@ RSpec.describe 'BelongsToMany', :aggregate_failures, :db  do
   end
 
   context 'using roaringbitmap64' do
-    let(:connection) { ActiveRecord::Base.connection }
-
-    # TODO: Set as a shared example
-    before do
-      connection.drop_table(:players) if connection.table_exists?(:players)
-      connection.drop_table(:games) if connection.table_exists?(:games)
-
-      connection.create_table(:players) { |t| t.string :name }
-      connection.create_table(:games) { |t| t.string :name; t.column :player_ids, :roaringbitmap64 }
-    end
-
-    class Player < ActiveRecord::Base
-      self.table_name = 'players'
-    end
-
-    class Game < ActiveRecord::Base
-      self.table_name = 'games'
-
-      options = { anonymous_class: Player, foreign_key: :player_ids }
-      options[:inverse_of] = false# if RoaringFkey::PostgreSQL::AR610
-      belongs_to_many :players, **options
-    end
+    include_context 'bitmap Players in Games'
 
     let!(:games) { 5.times.map { Game.create } }
     let!(:players) { 5.times.map { Player.create(name: %w[Ace Bobby Leonard Doozer].sample) } }
