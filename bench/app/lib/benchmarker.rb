@@ -24,7 +24,7 @@ module Benchmarker
         puts "-" * 80
         puts "Unable to connect to database.  Please run:"
         puts
-        puts "    createdb roaring_fkey_test"
+        puts "    createdb #{config[:database]}"
         puts "-" * 80
       end
       raise e

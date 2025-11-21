@@ -17,6 +17,6 @@ exception
     when duplicate_function then
          null;
     when others then
-      raise notice E'Got exception: roaring_fkey func roaringbitmap_count(roaringbitmap)';
+      raise notice E'Got exception: roaring_fkey func roaring_bitmap_count(roaringbitmap)';
 
 end; $pl$;

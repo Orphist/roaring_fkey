@@ -21,9 +21,19 @@ module RoaringFkey
       class_option :type, type: :string, default: 'roaringbitmap64', desc: "Bitmap type: roaringbitmap or roaringbitmap64"
 
       def generate_migration
-        if reference_name.blank?
-          warn "Use mandatory arg: field_name:references"
-          exit(1)
+        $stdout.puts ["4- -   --    attributes:", attributes]
+        $stdout.puts ["4- -   --    path:", options[:path]]
+        $stdout.puts ["4- -   --    name:", options[:name]]
+        $stdout.puts ["4- -   --    type:", options[:type]]
+        attributes.each do |attribute|
+          if attribute.reference?
+            if reference_name.blank?
+              warn "Use mandatory arg: field_name:references"
+              exit(1)
+            end
+          else
+
+          end
         end
 
         migration_template "migration.rb.erb", "db/migrate/#{migration_name}.rb"

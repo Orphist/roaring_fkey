@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-version = 4
+version = 8
 
 return if ActiveRecord::Migrator.current_version == version
 ActiveRecord::Schema.define(version: version) do
@@ -26,7 +26,7 @@ ActiveRecord::Schema.define(version: version) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "tags", force: :cascade do |t|
+  create_table "tags", id: :bigint, force: :cascade do |t|
     t.string "name"
     t.roaringbitmap "comment_ids"
   end
@@ -65,7 +65,7 @@ ActiveRecord::Schema.define(version: version) do
     t.integer  "activity_id"
     t.string   "title"
     t.text     "content"
-    t.integer     "status"#,    enum_type: :content_status
+    t.integer  "status"#,    enum_type: :content_status
     t.index ["author_id"], name: "index_posts_on_author_id", using: :btree
   end
 end

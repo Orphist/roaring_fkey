@@ -1,14 +1,14 @@
 do $pl$
 begin
 
-  CREATE FUNCTION roaringbitmap64_min(integer, roaringbitmap64)
-  returns int language sql immutable as $$
-    SELECT LEAST($1, rb_min($2))
+  CREATE FUNCTION roaring_fkey_bitmap64_min(bigint, roaringbitmap64)
+  returns bigint language sql immutable as $$
+    SELECT LEAST($1, rb64_min($2))
   $$;
 
   CREATE aggregate min (roaringbitmap64) (
-      sfunc = roaringbitmap64_min,
-      stype = integer,
+      sfunc = roaring_fkey_bitmap64_min,
+      stype = bigint,
       initcond = 0
   );
   --alter aggregate min (roaringbitmap64) owner to postgres;

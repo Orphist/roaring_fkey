@@ -14,7 +14,7 @@ RSpec.describe 'RoaringBitmap64', :aggregate_failures, :db do
       t.roaringbitmap64 :item_ids
     end
     
-    connection.create_table(:test_associated_models) do |t|
+    connection.create_table :test_associated_models, id: false do |t|
       t.string :name
       t.bigint :id
     end
@@ -80,11 +80,11 @@ RSpec.describe 'RoaringBitmap64', :aggregate_failures, :db do
 
     it 'has roaringbitmap64 aggregate functions' do
       aggregates = connection.select_values(
-        "SELECT proname FROM pg_proc WHERE proname LIKE 'roaringbitmap64_%'"
+        "SELECT proname FROM pg_proc WHERE proname LIKE 'roaring_fkey_%'"
       )
-      expect(aggregates).to include('roaringbitmap64_count')
-      expect(aggregates).to include('roaringbitmap64_max')
-      expect(aggregates).to include('roaringbitmap64_min')
+      expect(aggregates).to include('roaring_fkey_bitmap64_count')
+      expect(aggregates).to include('roaring_fkey_bitmap64_max')
+      expect(aggregates).to include('roaring_fkey_bitmap64_min')
     end
   end
 

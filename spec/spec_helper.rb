@@ -100,8 +100,23 @@ RSpec.configure do |config|
   config.append_after(:each, :db) do |ex|
     ActiveRecord::Base.connection.rollback_transaction
 
-    # raise "Migrations are pending: #{ex.metadata[:location]}" if ActiveRecord::Base.connection.migration_context.needs_migration?
+    raise "Migrations are pending: #{ex.metadata[:location]}" if ActiveRecord::Base.connection.migration_context.needs_migration?
   end
+  config.backtrace_exclusion_patterns = [
+    %r{spec/support},
+    %r{bin/rspec},
+    %r{bin/ruby},
+    %r{gems/raven},
+    %r{gems/rspec},
+    %r{gems/rack},
+   # %r{gems/railties},
+    %r{gems/rspec-core},
+   #%r{gems/acti},
+    /rspec-core/,
+    %r{gems/rspec-core},
+    %r{gems/pry},
+    %r{gems/factory}
+  ]
 end
 
 RSpec::Matchers.define_negated_matcher :not_change, :change

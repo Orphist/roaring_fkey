@@ -40,8 +40,8 @@ describe RoaringFkey::Generators::ModelGenerator, :aggregate_failures, type: :ge
   describe "migration" do
     context "without namespace" do
       let(:migration_path) { Dir[File.join(destination_root, "db", "migrate", "*add_roaring_fkey_user_ids_to_user_groups.rb")].first }
-      # rails generate roaring_fkey:model user_group user:references
-      let(:args) { ["user_group", "user:references"] }
+      # rails generate roaring_fkey:model user_group user:references type:roaringbitmap
+      let(:args) { ["user_group", "user:references", "type:roaringbitmap"] }
 
       before do
         File.write(
@@ -61,7 +61,7 @@ describe RoaringFkey::Generators::ModelGenerator, :aggregate_failures, type: :ge
         expect(File.exist?(migration_path)).to be true
         model_migration = File.open(migration_path).readlines
         expect(model_migration[0]).to include "class AddRoaringFkeyUserIdsToUserGroups < ActiveRecord::Migration[#{ar_version}]"
-        expect(model_migration[2]).to include "add_column :user_groups, :user_ids, :roaringbitmap, default: '\\x3a3000000100000000000000100000000000'"
+        expect(model_migration[2]).to include "add_column :user_groups, :user_ids, :roaringbitmap, default: '{}'::roaringbitmap"
       end
     end
 
@@ -119,7 +119,7 @@ describe RoaringFkey::Generators::ModelGenerator, :aggregate_failures, type: :ge
         expect(File.exist?(migration_path)).to be true
         model_migration = File.open(migration_path).readlines
         expect(model_migration[0]).to include "class AddRoaringFkeyFileIdsToDataSets < ActiveRecord::Migration[#{ar_version}]"
-        expect(model_migration[2]).to include "add_column :data_sets, :file_ids, :roaringbitmap, default: '\\x3a3000000100000000000000100000000000'"
+        expect(model_migration[2]).to include "add_column :data_sets, :file_ids, :roaringbitmap, default: '{}'::roaringbitmap"
       end
     end
 
@@ -150,7 +150,7 @@ describe RoaringFkey::Generators::ModelGenerator, :aggregate_failures, type: :ge
         expect(File.exist?(migration_path)).to be true
         model_migration = File.open(migration_path).readlines
         expect(model_migration[0]).to include "class AddRoaringFkeyFileIdsToDataSets < ActiveRecord::Migration[#{ar_version}]"
-        expect(model_migration[2]).to include "add_column :data_sets, :file_ids, :roaringbitmap, default: '\\x3a3000000100000000000000100000000000'"
+        expect(model_migration[2]).to include "add_column :data_sets, :file_ids, :roaringbitmap, default: '{}'::roaringbitmap"
       end
     end
   end

@@ -1,13 +1,13 @@
 do $pl$
 begin
 
-  CREATE FUNCTION roaringbitmap_min(integer, roaringbitmap)
+  CREATE FUNCTION roaring_fkey_bitmap_min(integer, roaringbitmap)
   returns int language sql immutable as $$
     SELECT LEAST($1, rb_max($2))
   $$;
 
   CREATE aggregate min (roaringbitmap) (
-      sfunc = roaringbitmap_min,
+      sfunc = roaring_fkey_bitmap_min,
       stype = integer,
       initcond = 0
   );
@@ -17,6 +17,6 @@ exception
     when duplicate_function then
          null;
     when others then
-      raise notice E'Got exception: roaring_fkey func roaringbitmap_min(roaringbitmap)';
+      raise notice E'Got exception: roaring_fkey func roaring_bitmap_min(roaringbitmap)';
 
 end; $pl$;

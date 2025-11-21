@@ -1,5 +1,5 @@
 class <%= @migration_class_name %> < ActiveRecord::Migration[<%= ActiveRecord::Migration.current_version %>]
   def change
-    add_column :<%= table_name %>, :<%= reference_name %>_ids, :<%= options[:type] || 'roaringbitmap64' %>, default: '\x3a3000000100000000000000100000000000'
+    add_column :<%= table_name %>, :<%= reference_name %>_ids, :<%= options[:type] || 'roaringbitmap64' %>, default: <%= options[:type] == 'roaringbitmap64' ? "'{}'::roaringbitmap64" : "'{}'::roaringbitmap" %>
   end
 end

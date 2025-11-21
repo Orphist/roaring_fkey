@@ -141,8 +141,10 @@ module ActiveRecord
               cast_to_array(value)
             when ::Array
               cast_to_array(value)
+            when ::Numeric
+              value
             else
-              raise NotImplementedError, "cast(value):Don't know how to cast #{value.class} #{value.inspect} into Roaringbitmap"
+              raise NotImplementedError, "deserialize(value):Don't know how to cast #{value.class} #{value.inspect} into Roaringbitmap"
             end
           end
 
