@@ -28,7 +28,14 @@ module RoaringFkey
         @new_record_before_save = new_record?
 
         association = association(reflection.name)
-        association.build_changes { save_collection_association(reflection) }
+        
+        # Only use build_changes if the association supports it (BelongsToManyAssociation)
+        # Otherwise fall back to standard save_collection_association
+        if association.respond_to?(:build_changes)
+          association.build_changes { save_collection_association(reflection) }
+        else
+          save_collection_association(reflection)
+        end
       rescue ::ActiveRecord::RecordInvalid
         throw(:abort)
       ensure
