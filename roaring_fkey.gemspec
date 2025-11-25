@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
 
   s.require_paths = ['lib']
 
-  s.files = %w(LICENSE.txt CHANGELOG.md README.md Rakefile) + Dir['lib/**/*rb']
+  s.files = %w(LICENSE.md CHANGELOG.md README.md Rakefile) + Dir['lib/**/*rb']
 
   s.add_dependency 'activerecord', '~> 6.1'
   s.add_dependency 'activesupport', '~> 6.1'

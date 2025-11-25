@@ -1,6 +1,8 @@
 # RoaringFkey
 
-RoaringFkey gives Rails a foreign key via belongs_to_many using roaringbitmap and roaringbitmap64 types in Postgresql
+RoaringFkey gives Rails v6+ a foreign key via belongs_to_many using roaringbitmap and roaringbitmap64 types in
+Postgresql
+
 Roaringbitmap and roaringbitmap64 types provided by Pg extension https://pgxn.org/dist/pg_roaringbitmap/
 
 ## Limitations
@@ -70,4 +72,4 @@ end
 
 ## License
 
-Copyright (c) 2024-2025 Orphist, released under the MIT license
+Copyright (c) 2024-2026 Orphist, released under the MIT license
