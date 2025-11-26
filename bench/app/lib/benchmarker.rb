@@ -298,7 +298,7 @@ module Benchmarker
   end
   
   def pretty_count(count_qty)
-    ::ActiveSupport::NumberHelper::number_to_delimited((count_qty/1_000.0).round(1), delimiter: "_").to_s + "k"
+    ::ActiveSupport::NumberHelper::number_to_delimited((count_qty/1_000.0).round(0), delimiter: "_").to_s + "k"
   end
 
   def generate_random_funcs
@@ -525,7 +525,7 @@ module Benchmarker
         ts:=now();
         insert into roaring_fkey_authors(id, book_ids, created_at, updated_at)
         select g.record_id,
-               rb_build(random_int_array(trunc(random() * 23)::int, 1, books_qty)),
+               rb64_build(random_int_array(trunc(random() * 23)::int, 1, books_qty)),
                ts,
                ts
         from generate_series(start_id, start_id+qty, 1) as g(record_id);
@@ -543,7 +543,7 @@ module Benchmarker
         ts:=now();
         insert into roaring_fkey_suppliers(id, book_ids, created_at, updated_at)
         select g.record_id,
-               rb_build(random_int_array(trunc(random() * 23)::int, 1, books_qty)),
+               rb64_build(random_int_array(trunc(random() * 23)::int, 1, books_qty)),
                ts,
                ts
         from generate_series(start_id, start_id+qty, 1) as g(record_id);
@@ -563,8 +563,8 @@ module Benchmarker
         ts:=now();
         insert into roaring_fkey_books(id, review_ids, order_ids, created_at, updated_at)
         select g.record_id,
-               rb_build(random_int_array(trunc(random() * 23)::int, 1, reviews_qty)),  
-               rb_build(random_int_array(trunc(random() * 15)::int, 1, orders_qty)),  
+               rb64_build(random_int_array(trunc(random() * 23)::int, 1, reviews_qty)),  
+               rb64_build(random_int_array(trunc(random() * 15)::int, 1, orders_qty)),  
                ts,
                ts
         from generate_series(start_id, start_id+qty, 1) as g(record_id);
@@ -584,8 +584,8 @@ module Benchmarker
         ts:=now();
         insert into roaring_fkey_customers(id, review_ids, order_ids, created_at, updated_at)
         select g.record_id,
-               rb_build(random_int_array(trunc(random() * 23)::int, 1, reviews_qty)),  
-               rb_build(random_int_array(trunc(random() * 15)::int, 1, orders_qty)),  
+               rb64_build(random_int_array(trunc(random() * 23)::int, 1, reviews_qty)),  
+               rb64_build(random_int_array(trunc(random() * 15)::int, 1, orders_qty)),  
                ts,
                ts
         from generate_series(start_id, start_id+qty, 1) as g(record_id);
@@ -638,7 +638,7 @@ module Benchmarker
         insert into roaring_fkey_orders(id, total, book_ids, roaring_fkey_customer_id, created_at, updated_at)
         select g.order_id,
                round(random()*2000)*100, 
-               rb_build(random_int_array(trunc(random() * 15)::int, 1, books_qty)),
+               rb64_build(random_int_array(trunc(random() * 15)::int, 1, books_qty)),
                random_int(customer_min_id, customer_max_id),
                ts,
                ts

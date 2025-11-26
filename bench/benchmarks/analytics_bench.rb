@@ -17,8 +17,8 @@ ar_rel = BookOrder.
           order("count(book_id) desc").
           limit(top_k_scale)
 rb_rel = RoaringFkey::Order.
-          select("rb_cardinality(book_ids) book_qty, id").
-          order("rb_cardinality(book_ids) desc").
+          select("rb64_cardinality(book_ids) book_qty, id").
+          order("rb64_cardinality(book_ids) desc").
           limit(top_k_scale)
 Benchmarker.bench_stage(ar_rel, rb_rel)
 
@@ -30,8 +30,8 @@ ar_rel = BookOrder.
       order("count(order_id) desc").
       limit(top_k_scale)
 rb_rel = RoaringFkey::Book.
-      select("rb_cardinality(order_ids) book_qty, id book_id").
-      order("rb_cardinality(order_ids) desc").
+      select("rb64_cardinality(order_ids) book_qty, id book_id").
+      order("rb64_cardinality(order_ids) desc").
       limit(top_k_scale)
 Benchmarker.bench_stage(ar_rel, rb_rel)
 
@@ -42,8 +42,8 @@ ar_rel = Review.
       order("count(book_id) desc").
       limit(top_k_scale)
 rb_rel = RoaringFkey::Book.
-      select("rb_cardinality(review_ids) book_review_qty, id").
-      order("rb_cardinality(review_ids) desc").
+      select("rb64_cardinality(review_ids) book_review_qty, id").
+      order("rb64_cardinality(review_ids) desc").
       limit(top_k_scale)
 Benchmarker.bench_stage(ar_rel, rb_rel)
 
@@ -61,7 +61,7 @@ rb_rel = RoaringFkey::Review.
       order("count(roaring_fkey_book_id) desc, avg(rating) desc").
       limit(top_k_scale)
 rb_rel = RoaringFkey::Book.
-      joins("INNER JOIN roaring_fkey_reviews ON (roaring_fkey_book_id = roaring_fkey_books.id AND NOT (rb_is_empty(review_ids)))").
+      joins("INNER JOIN roaring_fkey_reviews ON (roaring_fkey_book_id = roaring_fkey_books.id AND NOT (rb64_is_empty(review_ids)))").
       select("count(review_ids) book_review_qty, avg(rating) book_average_rating, roaring_fkey_book_id").
       group(:roaring_fkey_book_id).
       order("count(review_ids) desc, avg(rating) desc").
@@ -103,18 +103,18 @@ ar_rel = Order.joins(books: :reviews).
       limit(top_k_scale)
 # rb_rel = RoaringFkey::Order.
 #       joins("INNER JOIN roaring_fkey_books ON roaring_fkey_book_id = roaring_fkey_books.id").
-#       select("roaring_fkey_books.id, rb_cardinality(review_ids) reviews_qty, total as total_price").
+#       select("roaring_fkey_books.id, rb64_cardinality(review_ids) reviews_qty, total as total_price").
 #       where("total > ?", total_threshold).
-#       order("rb_cardinality(review_ids) desc").
+#       order("rb64_cardinality(review_ids) desc").
 #       limit(top_k_scale)
 
 ## AR Relation request above - too slow so make request w/raw SQL using rb_or_agg to aggregate unique books.id
 stmnt = <<-SQL
   (
     WITH most_reviewed AS(
-      SELECT id book_id, rb_cardinality(review_ids) reviews_qty
+      SELECT id book_id, rb64_cardinality(review_ids) reviews_qty
       FROM roaring_fkey_books
-      ORDER BY rb_cardinality(review_ids) DESC
+      ORDER BY rb64_cardinality(review_ids) DESC
       LIMIT 1000
     )
     SELECT book_id, reviews_qty, total AS total_price
@@ -135,8 +135,8 @@ ar_rel = Customer.left_outer_joins(:reviews).
         limit(top_k_scale)
 
 rb_rel = RoaringFkey::Customer.
-        select("roaring_fkey_customers.id, rb_cardinality(roaring_fkey_customers.review_ids)").
-        order("rb_cardinality(roaring_fkey_customers.review_ids) desc").
+        select("roaring_fkey_customers.id, rb64_cardinality(roaring_fkey_customers.review_ids)").
+        order("rb64_cardinality(roaring_fkey_customers.review_ids) desc").
         limit(top_k_scale)
 Benchmarker.bench_stage(ar_rel, rb_rel)
 
