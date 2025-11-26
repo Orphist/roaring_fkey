@@ -1,6 +1,6 @@
 bench:
   adapter: postgresql
   encoding: unicode
-  url: postgres://postgres:@172.240.3.5:7555/roaring_fkey_temp?prepared_statements=false
+  url: postgres://postgres:pgroar123@127.0.0.1:5665/roaring_fkey_bench
   pool: 40
-  database: roaring_fkey_temp
+  database: roaring_fkey_bench

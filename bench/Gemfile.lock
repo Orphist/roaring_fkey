@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    roaring_fkey (0.2.33)
+    roaring_fkey (0.3.2)
       activerecord (~> 6.1)
       activesupport (~> 6.1)
       byebug
@@ -72,14 +72,19 @@ GEM
       minitest (>= 5.1)
       tzinfo (~> 2.0)
       zeitwerk (~> 2.3)
+    base64 (0.3.0)
     benchmark-ips (2.14.0)
+    bigdecimal (3.3.1)
     builder (3.3.0)
     byebug (11.1.3)
     coderay (1.1.3)
     concurrent-ruby (1.3.4)
     crass (1.0.6)
+    csv (3.3.5)
     date (3.4.0)
+    diff-lcs (1.6.2)
     dotenv (2.8.1)
+    drb (2.2.3)
     erubi (1.13.0)
     faker (3.5.1)
       i18n (>= 1.8.11, < 2)
@@ -99,7 +104,9 @@ GEM
     memory_profiler (1.0.2)
     method_source (1.1.0)
     mini_mime (1.1.5)
+    mini_portile2 (2.8.9)
     minitest (5.25.1)
+    mutex_m (0.3.0)
     net-imap (0.4.17)
       date
       net-protocol
@@ -110,17 +117,8 @@ GEM
     net-smtp (0.5.0)
       net-protocol
     nio4r (2.7.4)
-    nokogiri (1.16.7-aarch64-linux)
-      racc (~> 1.4)
-    nokogiri (1.16.7-arm-linux)
-      racc (~> 1.4)
-    nokogiri (1.16.7-arm64-darwin)
-      racc (~> 1.4)
-    nokogiri (1.16.7-x86-linux)
-      racc (~> 1.4)
-    nokogiri (1.16.7-x86_64-darwin)
-      racc (~> 1.4)
-    nokogiri (1.16.7-x86_64-linux)
+    nokogiri (1.16.7)
+      mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
     pg (1.5.9)
     pry (0.14.2)
@@ -163,6 +161,19 @@ GEM
       thor (~> 1.0)
     rainbow (3.1.1)
     rake (13.2.1)
+    rspec (3.13.2)
+      rspec-core (~> 3.13.0)
+      rspec-expectations (~> 3.13.0)
+      rspec-mocks (~> 3.13.0)
+    rspec-core (3.13.6)
+      rspec-support (~> 3.13.0)
+    rspec-expectations (3.13.5)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.13.0)
+    rspec-mocks (3.13.7)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.13.0)
+    rspec-support (3.13.6)
     sprockets (4.2.1)
       concurrent-ruby (~> 1.0)
       rack (>= 2.2.4, < 4)
@@ -172,6 +183,7 @@ GEM
       sprockets (>= 3.0.0)
     thor (1.3.2)
     timeout (0.4.2)
+    tracer (0.2.3)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     websocket-driver (0.7.6)
@@ -188,14 +200,22 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  base64
   benchmark-ips
+  bigdecimal
+  concurrent-ruby (~> 1.2)
+  csv
   dotenv
+  drb
   faker
   memory_profiler
+  mutex_m
   pg (~> 1.0)
   rails (~> 6.1)
   rainbow
   roaring_fkey!
+  rspec (~> 3.12)
+  tracer
 
 BUNDLED WITH
    2.5.10

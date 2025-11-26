@@ -8,3 +8,5 @@ bench.md
 /ai/
 /ai_tasks/
 /vendor/
+dummy/log
+/bench/db/origins/

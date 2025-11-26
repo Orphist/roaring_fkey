@@ -10,6 +10,7 @@ gem 'drb'
 
 group :development do
   gem 'byebug'
+  gem 'benchmark-ips'
 end
 
 group :test do

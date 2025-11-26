@@ -8,9 +8,20 @@ gem "pg", "~> 1.0"
 gem "dotenv"
 gem "faker"
 
-# gem 'roaring_fkey', git: 'git@bitbucket.org:bitgit/roaring_fkey.git', branch: :master
 gem 'roaring_fkey', path: '../'#, branch: :master
 
 gem "memory_profiler"
 gem "benchmark-ips"
 gem "rainbow"
+
+gem 'mutex_m'
+gem 'base64'
+gem 'bigdecimal'
+gem 'tracer'
+gem 'drb'
+gem 'csv'
+gem 'concurrent-ruby', '~> 1.2'
+
+group :development, :test do
+  gem 'rspec', '~> 3.12'
+end

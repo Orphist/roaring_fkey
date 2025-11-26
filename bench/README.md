@@ -12,13 +12,13 @@ To run this benchmarks, you need to first provision the example Rails app:
 
 ```sh
 bundle install
-bundle exec rails db:migrate
+RAILS_ENV=bench bundle exec rails db:migrate
 ```
 
 To run a benchmark, run the corresponding script:
 
 ```sh
-bundle exec ruby benchmarks/insert_bench.rb
+RAILS_ENV=bench bundle exec ruby benchmarks/analytics_bench.rb
 ```
 
 ## Insert ([source](benchmarks/insert_bench.rb))

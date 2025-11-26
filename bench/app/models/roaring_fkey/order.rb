@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-# require "models/author"
-# require "models/book"
-
 class RoaringFkey::Order < ::RoaringFkey::ApplicationRecord
   # belongs_to :customer, foreign_key: :roaring_fkey_customer_id
   belongs_to_many :books, anonymous_class: RoaringFkey::Book, foreign_key: :book_ids, inverse_of: false
