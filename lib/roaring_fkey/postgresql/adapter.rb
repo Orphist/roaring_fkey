@@ -2,6 +2,7 @@
 
 require_relative 'adapter/database_statements'
 require_relative 'adapter/oid/roaringbitmap'
+require_relative 'adapter/oid/roaringbitmap64'
 require_relative 'adapter/quoting'
 
 module RoaringFkey

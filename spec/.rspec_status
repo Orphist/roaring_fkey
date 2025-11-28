@@ -1,0 +1,4 @@
+example_id                                                         | status | run_time        |
+------------------------------------------------------------------ | ------ | --------------- |
+./bench/spec/lib/tpch/generators/lineitem_generator_spec.rb[1:1:1] | passed | 2 seconds       |
+./bench/spec/lib/tpch/generators/orders_generator_spec.rb[1:1:1]   | passed | 0.49164 seconds |

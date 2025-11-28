@@ -1,0 +1,11 @@
+---
+name: customers_schema
+dataset:
+  name: customers
+  columns:
+    - {name: id, not_null: false, dtype: int, min: 1, max: 10000000}
+    - {name: name, dtype: name}
+    - {name: visits, dtype: int, min: 1, max: 5000, mean: 4.2, std: 0.36}
+    - {name: orders_count, dtype: int, min: 0, max: 15, mean: 4.2, std: 0.36}
+    - {name: created_at, not_null: true, dtype: "datetime", min: "2023-11-28 12:00:09" , max: "2025-11-30 12:00:09", format: "%Y-%m-%d %H:%M:%S"}
+    - {name: updated_at, not_null: true, dtype: "datetime", min: "2023-11-28 12:00:09" , max: "2025-11-30 12:00:09", format: "%Y-%m-%d %H:%M:%S"}

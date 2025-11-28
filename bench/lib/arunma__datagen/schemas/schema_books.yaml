@@ -1,0 +1,15 @@
+---
+name: books_schema
+dataset:
+  name: books
+  columns:
+    - {name: id, not_null: false, dtype: int, min: 1, max: 20000000}
+    - {name: title, dtype: name}
+    - {name: isbn, dtype: phone}
+    - {name: views, dtype: int, min: 0, max: 2000000}
+    - {name: year_published, dtype: int, min: 1989, max: 2025}
+    - {name: out_of_print, dtype: boolean}
+    - {name: author_id, dtype: int, min: 1, max: 200000}
+    - {name: supplier_id, dtype: int, min: 1, max: 200000}
+    - {name: created_at, not_null: true, dtype: "datetime", min: "2023-11-28 12:00:09" , max: "2025-11-30 12:00:09", format: "%Y-%m-%d %H:%M:%S"}
+    - {name: updated_at, not_null: true, dtype: "datetime", min: "2023-11-28 12:00:09" , max: "2025-11-30 12:00:09", format: "%Y-%m-%d %H:%M:%S"}

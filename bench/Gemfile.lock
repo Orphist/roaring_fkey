@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    roaring_fkey (0.3.2)
+    roaring_fkey (1.0.0)
       activerecord (~> 6.1)
       activesupport (~> 6.1)
       byebug
@@ -174,6 +174,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
     rspec-support (3.13.6)
+    rubyzip (3.2.2)
     sprockets (4.2.1)
       concurrent-ruby (~> 1.0)
       rack (>= 2.2.4, < 4)
@@ -215,6 +216,7 @@ DEPENDENCIES
   rainbow
   roaring_fkey!
   rspec (~> 3.12)
+  rubyzip
   tracer
 
 BUNDLED WITH

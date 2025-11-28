@@ -33,15 +33,22 @@ describe RoaringFkey::Generators::InstallGenerator, :aggregate_failures, type: :
         expect(File.exist?(migration_path)).to be true
         migration = File.open(migration_path).readlines.join
         expect(migration).to  include "class RoaringFkeyInstall < ActiveRecord::Migration[#{ar_version}]"
-        expect(migration).to  include "CREATE FUNCTION roaring_fkey_int_array_contains_bigint"
+        expect(migration).to  include "CREATE FUNCTION roaring_fkey_bigint_contains_in_bitmap64"
         expect(migration).to  include "CREATE FUNCTION roaring_fkey_bigint_contains_int_array"
-        expect(migration).to  include "CREATE FUNCTION roaring_fkey_bigint_contains_in_bitmap"
-        expect(migration).to  include "CREATE FUNCTION roaring_fkey_int_contains_in_bitmap"
-        expect(migration).to  include "CREATE FUNCTION roaring_fkey_bitmap_contains_bigint"
-        expect(migration).to  include "CREATE FUNCTION roaring_fkey_bitmap_overlaps_array_int"
+        expect(migration).to  include "CREATE FUNCTION roaring_fkey_bigint_eq_int_array"
+        expect(migration).to  include "CREATE FUNCTION roaring_fkey_bitmap64_count"
+        expect(migration).to  include "CREATE FUNCTION roaring_fkey_bitmap64_max"
+        expect(migration).to  include "CREATE FUNCTION roaring_fkey_bitmap64_min"
+        expect(migration).to  include "CREATE FUNCTION roaring_fkey_bitmap_contains_bigint64"
         expect(migration).to  include "CREATE FUNCTION roaring_fkey_bitmap_contains_int"
+        expect(migration).to  include "CREATE FUNCTION roaring_fkey_bitmap_count"
+        expect(migration).to  include "CREATE FUNCTION roaring_fkey_bitmap_max"
+        expect(migration).to  include "CREATE FUNCTION roaring_fkey_bitmap_min"
+        expect(migration).to  include "CREATE FUNCTION roaring_fkey_bitmap_overlaps_array_bigint64"
+        expect(migration).to  include "CREATE FUNCTION roaring_fkey_bitmap_overlaps_array_int"
+        expect(migration).to  include "CREATE FUNCTION roaring_fkey_int_array_contains_bigint"
+        expect(migration).to  include "CREATE FUNCTION roaring_fkey_int_contains_in_bitmap"
         expect(migration).to  include "CREATE FUNCTION roaring_fkey_version"
-        # expect(File.open(migration_path).readlines[0..50].join).to_not  include "DROP FUNCTION"
       end
     end
 

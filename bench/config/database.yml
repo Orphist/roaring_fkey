@@ -1,6 +1,13 @@
+development:
+  adapter: postgresql
+  encoding: unicode
+  url: postgresql://postgres:pgroar123@127.0.0.1:5665/roaring_fkey_bench
+  pool: 40
+  database: roaring_fkey_bench
+
 bench:
   adapter: postgresql
   encoding: unicode
-  url: postgres://postgres:pgroar123@127.0.0.1:5665/roaring_fkey_bench
+  url: postgresql://postgres:pgroar123@127.0.0.1:5665/roaring_fkey_bench
   pool: 40
   database: roaring_fkey_bench

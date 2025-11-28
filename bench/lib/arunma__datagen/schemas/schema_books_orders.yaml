@@ -1,0 +1,7 @@
+---
+name: books_orders_schema
+dataset:
+  name: books_orders
+  columns:
+    - {name: book_id, dtype: int, min: 1, max: 20000000}
+    - {name: order_id, dtype: int, min: 1, max: 200000000}

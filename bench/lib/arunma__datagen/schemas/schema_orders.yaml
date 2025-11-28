@@ -1,0 +1,11 @@
+---
+name: orders_schema
+dataset:
+  name: orders
+  columns:
+    - {name: id, not_null: false, dtype: int, min: 1, max: 200000000}
+    - {name: status, dtype: int, min: 1, max: 10}
+    - {name: total, dtype: int, min: 1, max: 9000000}
+    - {name: customer_id, dtype: int, min: 1, max: 10000000}
+    - {name: created_at, not_null: true, dtype: "datetime", min: "2023-11-28 12:00:09" , max: "2025-11-30 12:00:09", format: "%Y-%m-%d %H:%M:%S"}
+    - {name: updated_at, not_null: true, dtype: "datetime", min: "2023-11-28 12:00:09" , max: "2025-11-30 12:00:09", format: "%Y-%m-%d %H:%M:%S"}

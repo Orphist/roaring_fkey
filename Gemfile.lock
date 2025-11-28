@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    roaring_fkey (0.3.2)
+    roaring_fkey (1.0.0)
       activerecord (~> 6.1)
       activesupport (~> 6.1)
       byebug

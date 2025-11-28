@@ -1,10 +1,5 @@
 class InitSchemaTpcHBitmap < ActiveRecord::Migration[6.1]
   def change
-    execute <<-SQL
-      CREATE SCHEMA IF NOT EXISTS roaring;
-      ALTER ROLE CURRENT_USER SET search_path TO roaring, public;
-    SQL
-
     create_table :tpc_h_rfkey_part, primary_key: :p_partkey do |t|
       t.string :p_name, limit: 55
       t.string :p_mfgr, limit: 25
@@ -60,6 +55,8 @@ class InitSchemaTpcHBitmap < ActiveRecord::Migration[6.1]
     end
 
     create_table :tpc_h_rfkey_partsupp, primary_key: [:ps_partkey, :ps_suppkey] do |t|
+      t.integer :ps_partkey
+      t.integer :ps_suppkey
       t.integer :ps_availqty
       t.decimal :ps_supplycost
       t.string :ps_comment, limit: 199

@@ -1,0 +1,43 @@
+[package]
+name = "datagen"
+version = "0.1.4"
+authors = ["Arun Manivannan <arun@arunma.com>"]
+edition = "2018"
+include = ["src/**/*", "Cargo.toml"]
+repository = "https://github.com/arunma/datagen"
+readme = "README.md"
+description = "An easy to use tool to generate fake data in bulk and export it as Avro, Parquet or directly into your database as tables"
+license = "MIT"
+
+[dependencies]
+failure = "0.1.1"
+failure-tools = "4.0.2"
+structopt = "0.2"
+serde = "1.0"
+serde_yaml = "0.8"
+serde_json = "1.0"
+serde_derive = "1.0.92"
+csv = "1.0.7"
+avro-rs = "^0.6"
+rand = "0.7.2"
+fake = { version = "2.0", features=['chrono']}
+rand_distr = "0.2.2"
+chrono = "0.4.9"
+rayon = "1.8"
+polars = { version = "0.35", features = ["parquet"] }
+num-format = "0.4.4"
+zip = "0.6"
+
+[dev-dependencies]
+version-sync = "0.5" #TODO - Check what's this for'
+bincode = "1.1.4"
+pretty_assertions = "0.6.1"
+
+[profile.release]
+panic = 'unwind'
+incremental = false
+overflow-checks = false
+
+
+
+#cargo watch “test -- --nocapture”

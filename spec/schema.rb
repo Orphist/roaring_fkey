@@ -13,6 +13,7 @@
 version = 12
 
 return if ActiveRecord::Migrator.current_version == version
+
 ActiveRecord::Schema.define(version: version) do
   self.verbose = true
 
@@ -67,6 +68,8 @@ ActiveRecord::Schema.define(version: version) do
     t.integer  "status"
     t.index ["author_id"], name: "index_posts_on_author_id", using: :btree
   end
+
+  `rails generate roaring_fkey:install`
 end
 
 ActiveRecord::Base.connection.schema_cache.clear!

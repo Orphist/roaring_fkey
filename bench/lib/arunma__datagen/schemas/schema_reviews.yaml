@@ -1,0 +1,14 @@
+---
+name: reviews_schema
+dataset:
+  name: reviews
+  columns:
+    - {name: id, not_null: false, dtype: int, min: 1, max: 50000000}
+    - {name: title, dtype: name}
+    - {name: body, dtype: name}
+    - {name: rating, dtype: int, mean: 4.2, std: 0.36, min: 1, max: 5}
+    - {name: state, dtype: int, min: 1, max: 4}
+    - {name: book_id, dtype: int, min: 1, max: 5000000}
+    - {name: customer_id, dtype: int, min: 1, max: 20000000}
+    - {name: created_at, not_null: true, dtype: "datetime", min: "2023-11-28 12:00:09" , max: "2025-11-30 12:00:09", format: "%Y-%m-%d %H:%M:%S"}
+    - {name: updated_at, not_null: true, dtype: "datetime", min: "2023-11-28 12:00:09" , max: "2025-11-30 12:00:09", format: "%Y-%m-%d %H:%M:%S"}

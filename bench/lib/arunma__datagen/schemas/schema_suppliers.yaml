@@ -1,0 +1,9 @@
+---
+name: suppliers_schema
+dataset:
+  name: suppliers
+  columns:
+    - {name: id, not_null: false, dtype: int, min: 1, max: 200000}
+    - {name: name, dtype: name}
+    - {name: created_at, not_null: true, dtype: "datetime", min: "2023-11-28 12:00:09" , max: "2025-11-30 12:00:09", format: "%Y-%m-%d %H:%M:%S"}
+    - {name: updated_at, not_null: true, dtype: "datetime", min: "2023-11-28 12:00:09" , max: "2025-11-30 12:00:09", format: "%Y-%m-%d %H:%M:%S"}

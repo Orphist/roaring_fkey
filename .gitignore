@@ -6,7 +6,13 @@
 .env
 bench.md
 /ai/
+/ai_task/
 /ai_tasks/
 /vendor/
 dummy/log
 /bench/db/origins/
+/bench/generated/
+/bench/test_output/
+/bench/lib/arunma__datagen/target/
+/bench/lib/arunma__datagen/output_data/
+/bench/vendor
