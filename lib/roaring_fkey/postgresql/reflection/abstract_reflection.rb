@@ -7,14 +7,14 @@ module RoaringFkey
         AREL_ATTR = ::Arel::Attributes::Attribute
 
         # Check if the foreign key actually exists
-        def connected_through_array?
+        def belongs_to_many_association?
           false
         end
 
         # Fix where the join_scope method is the one now responsible for
         # building the join condition
         def join_scope(table, foreign_table, foreign_klass)
-          return super unless connected_through_array?
+          return super unless belongs_to_many_association?
 
           predicate_builder = predicate_builder(table)
           scope_chain_items = join_scopes(table, predicate_builder)
@@ -40,7 +40,7 @@ module RoaringFkey
         # Build the id constraint checking if both types are perfect matching.
         # The klass attribute (left side) will always be a column attribute
         def build_id_constraint(klass_attr, source_attr)
-          return klass_attr.eq(source_attr) unless connected_through_array?
+          return klass_attr.eq(source_attr) unless belongs_to_many_association?
 
           # Klass and key are associated with the reflection Class
           klass_type = klass.columns_hash[join_keys.key.to_s]

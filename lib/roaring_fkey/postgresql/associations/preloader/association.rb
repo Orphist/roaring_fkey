@@ -6,12 +6,12 @@ module RoaringFkey
       module Preloader
         module Association
 
-          delegate :connected_through_array?, to: :@reflection
+          delegate :belongs_to_many_association?, to: :@reflection
 
           # For reflections connected through an array, make sure to properly
           # decuple the list of ids and set them as associated with the owner
           def run
-            return super unless connected_through_array?
+            return super unless belongs_to_many_association?
             run_array_for_belongs_to_many
           end
 
@@ -30,7 +30,7 @@ module RoaringFkey
             if PostgreSQL::AR604
             # This is how Rails 6.0.4 and 6.1 now load the records
               def load_records
-                return super unless connected_through_array?
+                return super unless belongs_to_many_association?
 
                 @records_by_owner = {}.compare_by_identity
                 raw_records = owner_keys.empty? ? [] : records_for(owner_keys)
@@ -56,14 +56,14 @@ module RoaringFkey
             # Build correctly the constraint condition in order to get the
             # associated ids
             def records_for(ids, &block)
-              return super unless connected_through_array?
+              return super unless belongs_to_many_association?
               condition = scope.arel_table[association_key_name]
               condition = reflection.build_id_constraint(condition, ids.flatten.uniq)
               scope.where(condition).load(&block)
             end
 
             def associate_records_to_owner(owner, records)
-              return super unless connected_through_array?
+              return super unless belongs_to_many_association?
               association = owner.association(reflection.name)
               association.loaded!
               association.target.concat(records)

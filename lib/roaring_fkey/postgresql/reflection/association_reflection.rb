@@ -20,13 +20,13 @@ module RoaringFkey
           def derive_foreign_key
             result = super
             result = ActiveSupport::Inflector.pluralize(result) \
-              if collection? && connected_through_array?
+              if collection? && belongs_to_many_association?
             result
           end
 
           # returns either +nil+ or the inverse association name that it finds.
           def automatic_inverse_of
-            return super unless connected_through_array?
+            return super unless belongs_to_many_association?
 
             if can_find_inverse_of_automatically?(self)
               inverse_name = options[:as] || active_record.name.demodulize

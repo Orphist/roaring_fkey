@@ -202,7 +202,7 @@ module RoaringFkey
 
           def invertible_for?(record)
             inverse = inverse_reflection_for(record)
-            inverse && (inverse.has_many? && inverse.connected_through_array?)
+            inverse && (inverse.has_many? && inverse.belongs_to_many_association?)
           end
 
           def stale_state

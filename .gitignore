@@ -7,9 +7,8 @@
 bench.md
 /ai/
 /ai_task/
-/ai_tasks/
 /vendor/
-dummy/log
+spec/dummy/log
 /bench/db/origins/
 /bench/generated/
 /bench/test_output/

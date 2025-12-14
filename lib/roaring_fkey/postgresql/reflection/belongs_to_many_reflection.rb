@@ -8,7 +8,7 @@ module RoaringFkey
           :belongs_to_many
         end
 
-        def connected_through_array?
+        def belongs_to_many_association?
           true
         end
 

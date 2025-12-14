@@ -4,7 +4,7 @@ module RoaringFkey
   module PostgreSQL
     module Reflection
       module RuntimeReflection
-        delegate :klass, :active_record, :connected_through_array?, :macro, :name,
+        delegate :klass, :active_record, :belongs_to_many_association?, :macro, :name,
           :build_id_constraint, to: :@reflection
       end
 

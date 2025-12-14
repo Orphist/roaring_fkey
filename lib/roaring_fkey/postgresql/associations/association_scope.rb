@@ -17,7 +17,7 @@ module RoaringFkey
           # condition builder and uses an overlap condition building it on
           # +build_id_constraint+
           def last_chain_scope(scope, reflection, owner)
-            return super unless reflection.connected_through_array?
+            return super unless reflection.belongs_to_many_association?
 
             keys = reflection.join_keys
             value = transform_value(owner[keys.foreign_key])
@@ -30,7 +30,7 @@ module RoaringFkey
           # condition builder and uses an overlap condition building it on
           # +build_id_constraint+
           def next_chain_scope(scope, reflection, next_reflection)
-            return super unless reflection.connected_through_array?
+            return super unless reflection.belongs_to_many_association?
 
             keys = reflection.join_keys
             foreign_table = next_reflection.aliased_table
